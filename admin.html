@@ -88,8 +88,8 @@ input[type=color] { width: 56px; height: 44px; padding: 0; border: 1px solid #c0
     <input type="text" id="login-email" placeholder="이메일" autocomplete="username">
     <input type="password" id="login-pw" placeholder="비밀번호" autocomplete="current-password"
            style="width:100%;padding:10px 14px;border:1px solid #c0d8c0;border-radius:8px;font-size:14px;font-family:inherit;">
-    <button class="btn btn-green" onclick="doLogin()" style="margin-top:8px;">로그인</button>
-    <div id="login-err"></div>
+    <button class="btn btn-green" id="login-btn" style="margin-top:8px;">로그인</button>
+    <div id="login-err">스크립트를 불러오는 중...</div>
   </div>
 </div>
 
@@ -101,7 +101,7 @@ input[type=color] { width: 56px; height: 44px; padding: 0; border: 1px solid #c0
       <h1 id="admin-title">커미션 관리자</h1>
       <p id="load-status">Firebase에서 데이터 불러오는 중...</p>
       <a id="preview-link" href="#" target="_blank" style="display:inline-block;margin-top:6px;font-size:12px;color:#fff;opacity:0.9;">🔗 이 사이트 미리보기</a>
-      <a href="hub.html" target="_blank" style="display:inline-block;margin-top:6px;margin-left:12px;font-size:12px;color:#fff;opacity:0.9;">🏠 첫 화면 미리보기</a>
+      <a href="index.html" target="_blank" style="display:inline-block;margin-top:6px;margin-left:12px;font-size:12px;color:#fff;opacity:0.9;">🏠 첫 화면 미리보기</a>
     </div>
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
       <select id="site-switch" onchange="switchSite(this.value)" style="width:auto;min-width:170px;padding:11px 14px;border:0;font-weight:700;color:#2a4a2a;"></select>
@@ -274,23 +274,43 @@ const db = getDatabase(app);
 const auth = getAuth(app);
 
 /* ---------- 로그인 ---------- */
+const AUTH_ERR = {
+  'auth/invalid-credential': '이메일 또는 비밀번호가 올바르지 않아요.',
+  'auth/wrong-password': '비밀번호가 올바르지 않아요.',
+  'auth/user-not-found': '등록되지 않은 이메일이에요.',
+  'auth/invalid-email': '이메일 형식이 올바르지 않아요.',
+  'auth/too-many-requests': '시도가 너무 많아요. 잠시 후 다시 시도해 주세요.',
+  'auth/network-request-failed': '네트워크 오류예요. 인터넷 연결을 확인해 주세요.',
+  'auth/operation-not-allowed': 'Firebase 콘솔에서 이메일/비밀번호 로그인이 꺼져 있어요.',
+  'auth/unauthorized-domain': '이 도메인이 Firebase 승인 목록에 없어요. (Authentication → 설정 → 승인된 도메인)'
+};
+
+const loginBtn = document.getElementById('login-btn');
+const errEl = document.getElementById('login-err');
+errEl.textContent = '';
+
 window.doLogin = function() {
   const email = document.getElementById('login-email').value.trim();
   const pw = document.getElementById('login-pw').value;
-  const err = document.getElementById('login-err');
-  err.textContent = '';
-  if (!email || !pw) { err.textContent = '이메일과 비밀번호를 입력해 주세요.'; return; }
-  signInWithEmailAndPassword(auth, email, pw).catch(function(e) {
-    const msg = {
-      'auth/invalid-credential': '이메일 또는 비밀번호가 올바르지 않아요.',
-      'auth/invalid-email': '이메일 형식이 올바르지 않아요.',
-      'auth/too-many-requests': '시도가 너무 많아요. 잠시 후 다시 시도해 주세요.'
-    }[e.code];
-    err.textContent = msg || ('로그인 실패: ' + e.message);
-  });
+  errEl.textContent = '';
+  if (!email || !pw) { errEl.textContent = '이메일과 비밀번호를 입력해 주세요.'; return; }
+  loginBtn.disabled = true; loginBtn.textContent = '로그인 중...';
+  signInWithEmailAndPassword(auth, email, pw)
+    .catch(function(e) {
+      console.error('[login]', e.code, e.message);
+      errEl.textContent = (AUTH_ERR[e.code] || '로그인 실패') + '  [' + (e.code || e.message) + ']';
+    })
+    .finally(function() {
+      loginBtn.disabled = false; loginBtn.textContent = '로그인';
+    });
 };
 window.doLogout = function() { signOut(auth).then(function() { location.reload(); }); };
+
+loginBtn.addEventListener('click', window.doLogin);
 document.getElementById('login-pw').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') window.doLogin();
+});
+document.getElementById('login-email').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') window.doLogin();
 });
 
@@ -390,7 +410,7 @@ window.saveAll = function() {
 <script>
 var H = '&#9783;';
 
-/* ---------- 팔레트 생성 (index.html 과 동일 로직) ---------- */
+/* ---------- 팔레트 생성 (site.html 과 동일 로직) ---------- */
 function hexToHsl(hex) {
   hex = (hex || '#3a9a60').replace('#','');
   if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
@@ -548,7 +568,7 @@ window.renderAll = function() {
   document.getElementById('refund-head1').value = D.sections.refund.head1;
   document.getElementById('refund-head2').value = D.sections.refund.head2;
   document.getElementById('admin-title').textContent = (D.site.name || '커미션') + ' 관리자';
-  document.getElementById('preview-link').href = 'index.html?site=' + window.SITE_KEY;
+  document.getElementById('preview-link').href = 'site.html?site=' + window.SITE_KEY;
   syncPreview();
   renderTheme();
   renderSections();
