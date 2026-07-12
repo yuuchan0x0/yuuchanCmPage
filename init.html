@@ -58,6 +58,7 @@ import { getAuth, signInWithEmailAndPassword } from 'https://www.gstatic.com/fir
 const firebaseConfig = {
   apiKey: "AIzaSyD9oKf2hSIsRaCz7a_jdu5aiAtDq--rU8I",
   authDomain: "yuu-cm.firebaseapp.com",
+  databaseURL: "https://yuu-cm-default-rtdb.firebaseio.com",
   projectId: "yuu-cm",
   storageBucket: "yuu-cm.firebasestorage.app",
   messagingSenderId: "521850118177",
@@ -244,12 +245,13 @@ window.run = function() {
       document.getElementById('status').innerHTML =
         '<span style="color:#2a8a50;font-weight:700;">✅ 업로드 완료!</span><br>' +
         '관리자 : <a href="admin.html?site=' + siteKey + '">admin.html?site=' + siteKey + '</a><br>' +
-        '페이지 : <a href="index.html?site=' + siteKey + '" target="_blank">index.html?site=' + siteKey + '</a>';
+        '페이지 : <a href="site.html?site=' + siteKey + '" target="_blank">site.html?site=' + siteKey + '</a>';
     })
     .catch(function(e) {
       btn.disabled = false; btn.textContent = '🚀 업로드 실행';
       var msg = e.message;
       if (e.code === 'auth/invalid-credential') msg = '이메일 또는 비밀번호가 올바르지 않아요.';
+      else if (e.code === 'auth/configuration-not-found') msg = 'Firebase 콘솔 → Authentication → 시작하기 를 먼저 눌러 인증을 활성화해 주세요.';
       else if (String(e.message).indexOf('permission') !== -1) msg = '쓰기 권한이 없어요. DB 규칙에 이 계정의 UID가 등록됐는지 확인해 주세요.';
       document.getElementById('status').innerHTML = '<span style="color:#c03030;">❌ ' + msg + '</span>';
     });
