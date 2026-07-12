@@ -14,7 +14,8 @@
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 100%; font-family: 'Noto Sans KR', sans-serif; color: #0a1e0e; line-height: 1.6; overflow-x: hidden; }
-body { background: linear-gradient(165deg, var(--hero1) 0%, var(--hero2) 45%, var(--hero1) 100%); min-height: 100vh; }
+body { background: linear-gradient(165deg, var(--hero1) 0%, var(--hero2) 45%, var(--hero1) 100%); min-height: 100vh; opacity: 0; transition: opacity 0.35s ease; }
+body.ready { opacity: 1; }
 
 .hub { max-width: 1120px; margin: 0 auto; padding: 72px 40px 64px; text-align: center; position: relative; }
 .hub-badge { display: inline-block; background: var(--main); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: 3px; padding: 6px 20px; border-radius: 999px; margin-bottom: 20px; }
@@ -171,11 +172,16 @@ function render() {
              '</a>';
     }).join('');
   }
+  document.body.classList.add('ready');
   window.parent.postMessage({ height: document.body.scrollHeight }, '*');
 }
 
-onValue(ref(db, '_hub'), snap => { hub = snap.val() || {}; render(); });
-onValue(ref(db, '_sites'), snap => { sites = snap.val() || {}; render(); });
+let loadedHub = false, loadedSites = false;
+onValue(ref(db, '_hub'), snap => { hub = snap.val() || {}; loadedHub = true; if (loadedSites) render(); });
+onValue(ref(db, '_sites'), snap => { sites = snap.val() || {}; loadedSites = true; if (loadedHub) render(); });
+
+// DB 응답이 없어도 3초 뒤엔 표시
+setTimeout(function() { if (!document.body.classList.contains('ready')) render(); }, 3000);
 </script>
 </body>
 </html>
