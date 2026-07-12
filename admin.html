@@ -174,9 +174,15 @@ input[type=color] { width: 56px; height: 44px; padding: 0; border: 1px solid #c0
       <div class="field-row"><label>첫 화면 제목</label><input type="text" id="hub-title" placeholder="지율 커미션"></div>
     </div>
     <div class="field-row"><label>첫 화면 소개문</label><textarea id="hub-subtitle" style="min-height:60px;" placeholder="원하시는 커미션을 선택해 주세요"></textarea></div>
-    <div class="field-grid2">
-      <div class="field-row"><label>첫 화면 하단 문구</label><input type="text" id="hub-footer" placeholder="※ 무단 도용 및 복제를 금합니다."></div>
-      <div class="field-row"><label>첫 화면 메인 컬러</label><input type="text" id="hub-color" placeholder="#3a9a60"></div>
+    <div class="field-row"><label>첫 화면 하단 문구</label><input type="text" id="hub-footer" placeholder="※ 무단 도용 및 복제를 금합니다."></div>
+    <div class="field-row">
+      <label>첫 화면 메인 컬러</label>
+      <div class="color-picker-row">
+        <input type="color" id="hub-color-pick" value="#3a9a60" oninput="onHubColorInput(this.value)">
+        <input type="text" class="hex-input" id="hub-color" value="#3A9A60" oninput="onHubHexInput(this.value)">
+        <span class="hint">허브 배경·제목 색이 이 색에서 자동 생성돼요.</span>
+      </div>
+      <div class="preset-row" id="hub-preset-row"></div>
     </div>
 
     <div style="margin-top:24px;padding-top:20px;border-top:1px dashed #c0d8c0;">
@@ -259,13 +265,13 @@ import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from
    ★★★ 새 커미션 사이트를 만들 때는 이 부분만 교체하세요 ★★★
    ============================================================ */
 const firebaseConfig = {
-  apiKey: "AIzaSyD9oKf2hSIsRaCz7a_jdu5aiAtDq--rU8I",
-  authDomain: "yuu-cm.firebaseapp.com",
-  databaseURL: "https://yuu-cm-default-rtdb.firebaseio.com/",
-  projectId: "yuu-cm",
-  storageBucket: "yuu-cm.firebasestorage.app",
-  messagingSenderId: "521850118177",
-  appId: "1:521850118177:web:26dbbd7fe0aedd5adc8360"
+  apiKey: "AIzaSyDJemQYxfZ-xNLM91I9kXe_KBW1KxSCpHQ",
+  authDomain: "jiyul-commission.firebaseapp.com",
+  databaseURL: "https://jiyul-commission-default-rtdb.firebaseio.com",
+  projectId: "jiyul-commission",
+  storageBucket: "jiyul-commission.firebasestorage.app",
+  messagingSenderId: "732523553497",
+  appId: "1:732523553497:web:e0d0ae68ed4619795f54c8"
 };
 /* ============================================================ */
 
@@ -371,6 +377,7 @@ onValue(ref(db, SITE_KEY), function(snapshot) {
 }
 
 window.saveAll = function() {
+  if (!window.D) { alert('데이터가 아직 로드되지 않았어요. 잠시 후 다시 시도해 주세요.'); return; }
   window.collectInputs();
   const btn = document.getElementById('save-btn');
   btn.disabled = true; btn.textContent = '저장 중...';
@@ -469,16 +476,29 @@ function applyThemeToAdmin(base) {
   return p;
 }
 function onColorInput(v) {
+  if (!window.D) return;
+  if (!window.D.theme) window.D.theme = {};
   window.D.theme.main = v;
   document.getElementById('theme-hex').value = v.toUpperCase();
   applyThemeToAdmin(v);
 }
 function onHexInput(v) {
+  if (!window.D) return;
   if (!/^#?[0-9a-fA-F]{6}$/.test(v)) return;
   if (v[0] !== '#') v = '#' + v;
+  if (!window.D.theme) window.D.theme = {};
   window.D.theme.main = v.toLowerCase();
   document.getElementById('theme-color').value = v;
   applyThemeToAdmin(v);
+}
+function onHubColorInput(v) {
+  document.getElementById('hub-color').value = v.toUpperCase();
+  document.getElementById('hub-color-pick').value = v;
+}
+function onHubHexInput(v) {
+  if (!/^#?[0-9a-fA-F]{6}$/.test(v)) return;
+  if (v[0] !== '#') v = '#' + v;
+  document.getElementById('hub-color-pick').value = v;
 }
 function renderTheme() {
   var base = (window.D.theme && window.D.theme.main) || '#3a9a60';
@@ -592,7 +612,12 @@ window.renderHubSection = function() {
     document.getElementById('hub-title').value = h.title || '';
     document.getElementById('hub-subtitle').value = h.subtitle || '';
     document.getElementById('hub-footer').value = h.footer || '';
-    document.getElementById('hub-color').value = h.color || '#3a9a60';
+    var hc = h.color || '#3a9a60';
+    document.getElementById('hub-color').value = hc.toUpperCase();
+    document.getElementById('hub-color-pick').value = hc;
+    document.getElementById('hub-preset-row').innerHTML = PRESETS.map(function(c) {
+      return '<div class="preset" style="background:' + c + '" title="' + c + '" onclick="onHubColorInput(\'' + c + '\')"></div>';
+    }).join('');
   }
   if (m) {
     document.getElementById('meta-key').textContent = window.SITE_KEY;
