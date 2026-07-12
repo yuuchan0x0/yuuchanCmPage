@@ -25,6 +25,9 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 100%; background: #fff; font-family: 'Noto Sans KR', sans-serif; color: #0a1e0e; line-height: 1.6; overflow-x: hidden; }
+/* 테마 컬러가 적용되기 전까지 감춰서 색 깜빡임 방지 */
+body { opacity: 0; transition: opacity 0.35s ease; }
+body.ready { opacity: 1; }
 .page { width: 100%; background: #fff; }
 
 /* 히어로 */
@@ -481,9 +484,15 @@ onValue(ref(db, SITE_KEY), function(snapshot) {
     rt.innerHTML += `<tr><td>${r.stage || ''}</td><td class="${cls}">${r.rate || ''}</td></tr>`;
   });
 
+  // 테마 적용 완료 → 화면 표시
+  document.body.classList.add('ready');
+
   // iframe 높이 전달
   window.parent.postMessage({ height: document.body.scrollHeight }, '*');
 });
+
+// DB 응답이 없어도 3초 뒤엔 표시 (네트워크 실패 대비)
+setTimeout(function() { document.body.classList.add('ready'); }, 3000);
 
 // 커미션이 2개 이상일 때만 "목록으로" 버튼 표시
 onValue(ref(db, '_sites'), function(snap) {
