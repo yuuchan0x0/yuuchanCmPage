@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>커미션 — 관리자</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+<style>
+:root { --main:#3a9a60; --deep:#2a7a48; --dark:#1a6a40; --light:#60c080; --bg:#f0f8f0; --bg2:#eef6ee; --border:#a8d4b0; --text:#4a7050; --sub:#6aaa80; --hero1:#eef7ee; --hero2:#daeedc; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg2); color: #1a2a1a; min-height: 100vh; }
+.admin-wrap { max-width: 900px; margin: 0 auto; padding: 32px 20px 80px; }
+.admin-header { background: linear-gradient(135deg, var(--main), var(--deep)); color: #fff; border-radius: 16px; padding: 28px 32px; margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+.admin-header h1 { font-size: 22px; font-weight: 700; }
+.admin-header p { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+.save-btn { background: #fff; color: var(--deep); font-weight: 700; font-size: 14px; padding: 12px 24px; border-radius: 10px; border: 0; cursor: pointer; font-family: inherit; }
+.save-btn:hover { background: var(--bg2); }
+.save-btn:disabled { opacity: 0.5; cursor: default; }
+.admin-section { background: #fff; border-radius: 14px; border: 1px solid var(--border); padding: 28px; margin-bottom: 20px; }
+.admin-section-title { font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--border); }
+label { font-size: 13px; font-weight: 700; color: #2a4a2a; display: block; margin-bottom: 6px; }
+input[type=text], textarea, select { width: 100%; padding: 10px 14px; border: 1px solid #c0d8c0; border-radius: 8px; font-size: 14px; font-family: inherit; color: #1a2a1a; background: #fff; outline: none; transition: border-color 0.15s; }
+input:focus, textarea:focus, select:focus { border-color: var(--main); }
+textarea { resize: vertical; min-height: 80px; }
+.hint { font-size: 12px; color: var(--sub); font-weight: 400; margin-top: 4px; }
+.field-row { margin-bottom: 16px; }
+.field-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.field-grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.btn { padding: 9px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; border: 0; font-family: inherit; transition: opacity 0.15s; }
+.btn:hover { opacity: 0.8; }
+.btn-green { background: var(--main); color: #fff; }
+.btn-red { background: #e84040; color: #fff; }
+.item-card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+.item-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.item-card-num { font-size: 12px; font-weight: 700; color: var(--sub); background: var(--hero2); padding: 3px 10px; border-radius: 999px; }
+.status-row { display: grid; grid-template-columns: auto 1fr 1fr auto auto; gap: 10px; align-items: center; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; }
+.toast { position: fixed; bottom: 30px; right: 30px; background: var(--main); color: #fff; padding: 14px 24px; border-radius: 10px; font-size: 14px; font-weight: 700; box-shadow: 0 4px 16px rgba(0,0,0,0.15); opacity: 0; transition: opacity 0.3s; z-index: 9999; pointer-events: none; }
+.toast.show { opacity: 1; }
+.drag-handle { cursor: grab; color: #aac8aa; font-size: 18px; padding: 0 8px; user-select: none; flex-shrink: 0; }
+.drag-handle:active { cursor: grabbing; }
+.item-card.sortable-ghost { opacity: 0.4; }
+.item-card.sortable-chosen { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+.status-row.sortable-ghost { opacity: 0.4; }
+/* 테마 */
+.color-picker-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+input[type=color] { width: 56px; height: 44px; padding: 0; border: 1px solid #c0d8c0; border-radius: 8px; background: #fff; cursor: pointer; }
+.hex-input { width: 130px !important; font-family: monospace; text-transform: uppercase; }
+.preset-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.preset { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #ccc; cursor: pointer; }
+.preset:hover { transform: scale(1.08); }
+.palette { display: flex; gap: 0; margin-top: 16px; border-radius: 8px; overflow: hidden; border: 1px solid #c0d8c0; }
+.palette div { flex: 1; height: 34px; }
+.theme-preview { margin-top: 16px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.tp-hero { background: linear-gradient(150deg, var(--hero1), var(--hero2)); padding: 20px; text-align: center; }
+.tp-badge { display: inline-block; background: var(--main); color: #fff; font-size: 10px; font-weight: 700; letter-spacing: 2px; padding: 4px 14px; border-radius: 999px; }
+.tp-name { font-size: 20px; font-weight: 700; color: var(--dark); margin-top: 8px; }
+.tp-body { padding: 16px 20px; background: #fff; }
+.tp-card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+.tp-card b { color: var(--dark); font-size: 13px; }
+.tp-card p { color: var(--text); font-size: 12px; margin-top: 4px; }
+.sec-row { display: grid; grid-template-columns: auto 150px 1fr; gap: 12px; align-items: center; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; }
+.sec-row input[type=checkbox] { width: 18px; height: 18px; cursor: pointer; }
+/* 로그인 */
+#login-overlay { position: fixed; inset: 0; background: var(--bg2); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
+.login-box { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 32px; width: 100%; max-width: 380px; box-shadow: 0 8px 32px rgba(0,0,0,0.06); }
+.login-box h2 { font-size: 18px; color: var(--dark); margin-bottom: 6px; }
+.login-box p { font-size: 13px; color: var(--sub); margin-bottom: 22px; }
+.login-box input { margin-bottom: 12px; }
+.login-box .btn-green { width: 100%; padding: 13px; font-size: 14px; }
+#login-err { font-size: 13px; color: #c03030; margin-top: 12px; min-height: 18px; }
+#app-body { display: none; }
+.logout-btn { background: rgba(255,255,255,0.25); color: #fff; border: 0; font-size: 12px; font-weight: 700; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-family: inherit; }
+.logout-btn:hover { background: rgba(255,255,255,0.4); }
+@media (max-width: 700px) {
+  .field-grid2, .field-grid3 { grid-template-columns: 1fr; }
+  .sec-row { grid-template-columns: auto 1fr; }
+  .status-row { grid-template-columns: auto 1fr; }
+}
+</style>
+</head>
+<body>
+<div id="login-overlay">
+  <div class="login-box">
+    <h2>🔒 관리자 로그인</h2>
+    <p>커미션 내용을 수정하려면 로그인이 필요해요.</p>
+    <input type="text" id="login-email" placeholder="이메일" autocomplete="username">
+    <input type="password" id="login-pw" placeholder="비밀번호" autocomplete="current-password"
+           style="width:100%;padding:10px 14px;border:1px solid #c0d8c0;border-radius:8px;font-size:14px;font-family:inherit;">
+    <button class="btn btn-green" onclick="doLogin()" style="margin-top:8px;">로그인</button>
+    <div id="login-err"></div>
+  </div>
+</div>
+
+<div id="app-body">
+<div class="admin-wrap">
+
+  <div class="admin-header">
+    <div>
+      <h1 id="admin-title">커미션 관리자</h1>
+      <p id="load-status">Firebase에서 데이터 불러오는 중...</p>
+      <a id="preview-link" href="#" target="_blank" style="display:inline-block;margin-top:6px;font-size:12px;color:#fff;opacity:0.9;">🔗 이 사이트 미리보기</a>
+      <a href="hub.html" target="_blank" style="display:inline-block;margin-top:6px;margin-left:12px;font-size:12px;color:#fff;opacity:0.9;">🏠 첫 화면 미리보기</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <select id="site-switch" onchange="switchSite(this.value)" style="width:auto;min-width:170px;padding:11px 14px;border:0;font-weight:700;color:#2a4a2a;"></select>
+      <button class="save-btn" id="save-btn" onclick="saveAll()" disabled>💾 저장 (즉시 반영)</button>
+      <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+    </div>
+  </div>
+
+  <div class="admin-section">
+    <div class="admin-section-title">🎨 0. 사이트 정보 &amp; 테마</div>
+
+    <div class="field-grid2">
+      <div class="field-row"><label>브라우저 탭 제목</label><input type="text" id="site-page_title" placeholder="지율 커미션 — Live2D 리깅"></div>
+      <div class="field-row"><label>상단 배지</label><input type="text" id="site-badge" placeholder="LIVE2D RIGGING ARTIST"></div>
+    </div>
+    <div class="field-grid2">
+      <div class="field-row"><label>메인 타이틀</label><input type="text" id="site-name" placeholder="지율 커미션"></div>
+      <div class="field-row"><label>영문 타이틀</label><input type="text" id="site-en" placeholder="JIYUL COMMISSION"></div>
+    </div>
+    <div class="field-row"><label>타이틀 아래 소개문<span class="hint" style="display:inline;margin-left:6px;">줄바꿈 가능 · 답변시간은 자동으로 붙어요</span></label><textarea id="site-desc" style="min-height:60px;" placeholder="Live2D 리깅 전문 작가"></textarea></div>
+    <div class="field-row"><label>해시태그</label><input type="text" id="site-tags" placeholder="Live2D, 리깅, VTube Studio"><div class="hint">쉼표(,)로 구분해서 입력하세요. # 는 자동으로 붙습니다.</div></div>
+
+    <div class="field-row"><label>푸터 제목</label><input type="text" id="site-footer_name" placeholder="지율 커미션 💚"></div>
+    <div class="field-row"><label>푸터 내용</label><textarea id="site-footer_body" style="min-height:60px;" placeholder="문의는 아트머그 내 문의하기를 통해 남겨주세요"></textarea></div>
+    <div class="field-row"><label>푸터 하단 경고문</label><input type="text" id="site-footer_warn" placeholder="※ 무단 도용 및 복제를 금합니다."></div>
+
+    <div class="field-row" style="margin-top:24px;padding-top:20px;border-top:1px dashed #c0d8c0;">
+      <label>메인 컬러</label>
+      <div class="color-picker-row">
+        <input type="color" id="theme-color" value="#3a9a60" oninput="onColorInput(this.value)">
+        <input type="text" class="hex-input" id="theme-hex" value="#3A9A60" oninput="onHexInput(this.value)">
+        <span class="hint">이 색 하나로 사이트 전체 팔레트가 자동 생성돼요.</span>
+      </div>
+      <div class="preset-row" id="preset-row"></div>
+      <div class="palette" id="palette"></div>
+      <div class="theme-preview">
+        <div class="tp-hero">
+          <div class="tp-badge" id="tp-badge">COMMISSION</div>
+          <div class="tp-name" id="tp-name">커미션</div>
+        </div>
+        <div class="tp-body">
+          <div class="tp-card"><b>미리보기 카드</b><p>실제 페이지에 이 색이 이렇게 적용돼요.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-section">
+    <div class="admin-section-title">🧩 0-1. 섹션 제목 &amp; 표시 여부</div>
+    <div class="hint" style="margin-bottom:14px;">체크를 끄면 해당 섹션이 페이지에서 사라져요. 커미션 종류에 맞게 제목을 바꿔주세요.</div>
+    <div id="section-items"></div>
+
+    <div class="field-grid3" style="margin-top:20px;">
+      <div class="field-row"><label>가격표 1열 제목</label><input type="text" id="price-head1"></div>
+      <div class="field-row"><label>가격표 2열 제목</label><input type="text" id="price-head2"></div>
+      <div class="field-row"><label>가격표 3열 제목</label><input type="text" id="price-head3"></div>
+    </div>
+    <div class="field-row"><label>가격표 하단 안내문</label><textarea id="price-note" style="min-height:60px;"></textarea></div>
+    <div class="field-grid2">
+      <div class="field-row"><label>환불표 1열 제목</label><input type="text" id="refund-head1"></div>
+      <div class="field-row"><label>환불표 2열 제목</label><input type="text" id="refund-head2"></div>
+    </div>
+  </div>
+
+  <div class="admin-section">
+    <div class="admin-section-title">🏠 0-2. 첫 화면(hub) 설정</div>
+    <div class="hint" style="margin-bottom:14px;">모든 커미션이 공유하는 <b>첫 화면</b>이에요. 어느 관리자에서 고쳐도 똑같이 반영됩니다.</div>
+    <div class="field-grid2">
+      <div class="field-row"><label>첫 화면 배지</label><input type="text" id="hub-badge" placeholder="COMMISSION"></div>
+      <div class="field-row"><label>첫 화면 제목</label><input type="text" id="hub-title" placeholder="지율 커미션"></div>
+    </div>
+    <div class="field-row"><label>첫 화면 소개문</label><textarea id="hub-subtitle" style="min-height:60px;" placeholder="원하시는 커미션을 선택해 주세요"></textarea></div>
+    <div class="field-grid2">
+      <div class="field-row"><label>첫 화면 하단 문구</label><input type="text" id="hub-footer" placeholder="※ 무단 도용 및 복제를 금합니다."></div>
+      <div class="field-row"><label>첫 화면 메인 컬러</label><input type="text" id="hub-color" placeholder="#3a9a60"></div>
+    </div>
+
+    <div style="margin-top:24px;padding-top:20px;border-top:1px dashed #c0d8c0;">
+      <label>이 커미션의 카드 (<span id="meta-key"></span>)</label>
+      <div class="field-grid3" style="margin-top:8px;">
+        <div class="field-row" style="display:flex;align-items:center;gap:10px;">
+          <input type="checkbox" id="meta-visible" style="width:18px;height:18px;cursor:pointer;">
+          <label style="margin:0;">첫 화면에 표시</label>
+        </div>
+        <div class="field-row"><label>정렬 순서</label><input type="text" id="meta-order" placeholder="1"></div>
+        <div class="field-row"><label>카드 한 줄 설명</label><input type="text" id="meta-desc" placeholder="Live2D 리깅 · VTS 세팅 포함"></div>
+      </div>
+      <div class="hint">카드 이름과 색은 위에서 설정한 <b>메인 타이틀</b>·<b>메인 컬러</b>를 그대로 씁니다.</div>
+    </div>
+  </div>
+
+  <div class="admin-section">
+    <div class="admin-section-title">📢 1. 공지사항</div>
+    <div class="field-row"><label>문의 답변 시간</label><input type="text" id="answer_time" placeholder="매일 오후 12시 ~ 오후 11시"><div class="hint">비워두면 표시되지 않아요.</div></div>
+    <label style="margin-bottom:10px;">공지 카드</label>
+    <div id="notice-items"></div>
+    <button class="btn btn-green" onclick="addNotice()" style="margin-top:8px;">+ 공지 추가</button>
+  </div>
+
+  <div class="admin-section">
+    <div class="admin-section-title">📅 2. 예약 현황</div>
+    <div id="status-items"></div>
+    <button class="btn btn-green" onclick="addStatus()" style="margin-top:8px;">+ 항목 추가</button>
+  </div>
+
+  <div class="admin-section">
+    <div class="admin-section-title">⚙️ 3. 진행 방식</div>
+    <div id="process-items"></div>
+    <button class="btn btn-green" onclick="addProcess()" style="margin-top:8px;">+ 단계 추가</button>
+  </div>
+
+  <div class="admin-section">
+    <div class="admin-section-title">🤝 4. 협업 작가</div>
+    <div class="hint" style="margin-bottom:14px;">섹션 표시 여부는 위 <b>0-1. 섹션 제목 &amp; 표시 여부</b> 에서 켜고 끌 수 있어요.</div>
+    <div id="collab-items"></div>
+    <button class="btn btn-green" onclick="addCollab()" style="margin-top:8px;">+ 작가 추가</button>
+  </div>
+
+  <div class="admin-section">
+    <div class="admin-section-title">💰 5. 가격표</div>
+    <div id="price-items"></div>
+    <button class="btn btn-green" onclick="addPrice()" style="margin-top:8px;">+ 항목 추가</button>
+  </div>
+
+  <div class="admin-section">
+    <div class="admin-section-title">🖼️ 6. 샘플</div>
+    <div id="sample-items"></div>
+    <button class="btn btn-green" onclick="addSample()" style="margin-top:8px;">+ 샘플 추가</button>
+  </div>
+
+  <div class="admin-section">
+    <div class="admin-section-title">❓ 7. FAQ</div>
+    <div id="faq-items"></div>
+    <button class="btn btn-green" onclick="addFaq()" style="margin-top:8px;">+ Q&amp;A 추가</button>
+  </div>
+
+  <div class="admin-section">
+    <div class="admin-section-title">💳 8. 환불 정책</div>
+    <div class="field-row"><label>환불 정책 소개</label><textarea id="refund-intro"></textarea></div>
+    <label style="margin-bottom:10px;">환불 단계</label>
+    <div id="refund-items"></div>
+    <button class="btn btn-green" onclick="addRefund()" style="margin-top:8px;">+ 단계 추가</button>
+  </div>
+
+</div>
+<div class="toast" id="toast">✅ 저장됐어요! 페이지에 바로 반영됩니다</div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, onValue, set } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+/* ============================================================
+   ★★★ 새 커미션 사이트를 만들 때는 이 부분만 교체하세요 ★★★
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyDJemQYxfZ-xNLM91I9kXe_KBW1KxSCpHQ",
+  authDomain: "jiyul-commission.firebaseapp.com",
+  databaseURL: "https://jiyul-commission-default-rtdb.firebaseio.com",
+  projectId: "jiyul-commission",
+  storageBucket: "jiyul-commission.firebasestorage.app",
+  messagingSenderId: "732523553497",
+  appId: "1:732523553497:web:e0d0ae68ed4619795f54c8"
+};
+/* ============================================================ */
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+
+/* ---------- 로그인 ---------- */
+window.doLogin = function() {
+  const email = document.getElementById('login-email').value.trim();
+  const pw = document.getElementById('login-pw').value;
+  const err = document.getElementById('login-err');
+  err.textContent = '';
+  if (!email || !pw) { err.textContent = '이메일과 비밀번호를 입력해 주세요.'; return; }
+  signInWithEmailAndPassword(auth, email, pw).catch(function(e) {
+    const msg = {
+      'auth/invalid-credential': '이메일 또는 비밀번호가 올바르지 않아요.',
+      'auth/invalid-email': '이메일 형식이 올바르지 않아요.',
+      'auth/too-many-requests': '시도가 너무 많아요. 잠시 후 다시 시도해 주세요.'
+    }[e.code];
+    err.textContent = msg || ('로그인 실패: ' + e.message);
+  });
+};
+window.doLogout = function() { signOut(auth).then(function() { location.reload(); }); };
+document.getElementById('login-pw').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') window.doLogin();
+});
+
+let started = false;
+onAuthStateChanged(auth, function(user) {
+  if (!user) {
+    document.getElementById('login-overlay').style.display = 'flex';
+    document.getElementById('app-body').style.display = 'none';
+    return;
+  }
+  document.getElementById('login-overlay').style.display = 'none';
+  document.getElementById('app-body').style.display = 'block';
+  if (!started) { started = true; startAdmin(); }
+});
+
+/* 여러 커미션을 한 Firebase에서 운영 — URL ?site=키 로 구분 */
+const SITE_KEY = (new URLSearchParams(location.search).get('site') || 'commission').replace(/[^a-zA-Z0-9_-]/g, '');
+window.SITE_KEY = SITE_KEY;
+window.switchSite = function(key) {
+  if (key === SITE_KEY) return;
+  location.href = 'admin.html?site=' + key;
+};
+
+function startAdmin() {
+// 사이트 목록 드롭다운 + 이 사이트의 카드 정보
+onValue(ref(db, '_sites'), function(snap) {
+  const list = snap.val() || {};
+  window.SITES = list;
+  window.META = list[SITE_KEY] || { visible: true, order: 1, desc: '' };
+  const keys = Object.keys(list);
+  if (keys.indexOf(SITE_KEY) === -1) keys.unshift(SITE_KEY);
+  document.getElementById('site-switch').innerHTML = keys.map(function(k) {
+    const nm = (list[k] && list[k].name) || k;
+    return '<option value="' + k + '"' + (k === SITE_KEY ? ' selected' : '') + '>' + nm + ' (' + k + ')</option>';
+  }).join('');
+  window.renderHubSection();
+}, { onlyOnce: true });
+
+// 첫 화면(hub) 공통 설정
+onValue(ref(db, '_hub'), function(snap) {
+  window.HUB = snap.val() || {};
+  window.renderHubSection();
+}, { onlyOnce: true });
+
+onValue(ref(db, SITE_KEY), function(snapshot) {
+  const d = snapshot.val();
+  if (!d) {
+    document.getElementById('load-status').textContent = '"' + SITE_KEY + '" 데이터 없음 — init.html에서 먼저 생성하세요';
+    return;
+  }
+  window.D = JSON.parse(JSON.stringify(d));
+  window.seedDefaults();
+  window.renderAll();
+  document.getElementById('load-status').textContent = '데이터 로드 완료 ✅  ·  사이트 키 : ' + SITE_KEY;
+  document.getElementById('save-btn').disabled = false;
+}, { onlyOnce: true });
+}
+
+window.saveAll = function() {
+  window.collectInputs();
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true; btn.textContent = '저장 중...';
+  Promise.all([
+    set(ref(db, SITE_KEY), window.D),
+    set(ref(db, '_sites/' + SITE_KEY), {
+      name: window.D.site.name || SITE_KEY,
+      color: (window.D.theme && window.D.theme.main) || '#3a9a60',
+      desc: document.getElementById('meta-desc').value,
+      order: Number(document.getElementById('meta-order').value) || 0,
+      visible: document.getElementById('meta-visible').checked
+    }),
+    set(ref(db, '_hub'), {
+      badge: document.getElementById('hub-badge').value,
+      title: document.getElementById('hub-title').value,
+      subtitle: document.getElementById('hub-subtitle').value,
+      footer: document.getElementById('hub-footer').value,
+      color: document.getElementById('hub-color').value || '#3a9a60'
+    })
+  ])
+    .then(function() {
+      btn.disabled = false; btn.textContent = '💾 저장 (즉시 반영)';
+      const t = document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 3000);
+    })
+    .catch(function(e) {
+      btn.disabled = false; btn.textContent = '💾 저장 (즉시 반영)';
+      if (String(e.message).indexOf('permission') !== -1 || e.code === 'PERMISSION_DENIED') {
+        alert('저장 권한이 없어요.\n\n· Realtime Database 규칙에 이 계정의 UID가 등록됐는지 확인해 주세요.\n· 또는 로그아웃 후 관리자 계정으로 다시 로그인해 주세요.');
+      } else {
+        alert('저장 실패: ' + e.message);
+      }
+    });
+};
+</script>
+
+<script>
+var H = '&#9783;';
+
+/* ---------- 팔레트 생성 (index.html 과 동일 로직) ---------- */
+function hexToHsl(hex) {
+  hex = (hex || '#3a9a60').replace('#','');
+  if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+  var r = parseInt(hex.substr(0,2),16)/255, g = parseInt(hex.substr(2,2),16)/255, b = parseInt(hex.substr(4,2),16)/255;
+  var max = Math.max(r,g,b), min = Math.min(r,g,b);
+  var h = 0, s = 0, l = (max+min)/2, dd = max-min;
+  if (dd) {
+    s = l > 0.5 ? dd/(2-max-min) : dd/(max+min);
+    if (max === r) h = ((g-b)/dd + (g < b ? 6 : 0));
+    else if (max === g) h = (b-r)/dd + 2;
+    else h = (r-g)/dd + 4;
+    h *= 60;
+  }
+  return { h: h, s: s, l: l };
+}
+function hslToHex(h, s, l) {
+  s = Math.max(0, Math.min(1, s)); l = Math.max(0, Math.min(1, l));
+  var c = (1 - Math.abs(2*l - 1)) * s, x = c * (1 - Math.abs((h/60) % 2 - 1)), m = l - c/2;
+  var r=0,g=0,b=0;
+  if (h < 60)     { r=c; g=x; }
+  else if (h<120) { r=x; g=c; }
+  else if (h<180) { g=c; b=x; }
+  else if (h<240) { g=x; b=c; }
+  else if (h<300) { r=x; b=c; }
+  else            { r=c; b=x; }
+  function to(v) { return Math.round((v+m)*255).toString(16).padStart(2,'0'); }
+  return '#' + to(r) + to(g) + to(b);
+}
+function genPalette(base) {
+  var c = hexToHsl(base), h = c.h, s = c.s;
+  return {
+    main: base,
+    deep:   hslToHex(h, Math.min(1, s*1.05), 0.32),
+    dark:   hslToHex(h, Math.min(1, s*1.05), 0.26),
+    light:  hslToHex(h, Math.min(1, s*0.95), 0.56),
+    bg:     hslToHex(h, Math.max(0.15, s*0.45), 0.95),
+    bg2:    hslToHex(h, Math.max(0.12, s*0.35), 0.965),
+    border: hslToHex(h, Math.max(0.20, s*0.50), 0.75),
+    text:   hslToHex(h, Math.max(0.12, s*0.30), 0.36),
+    sub:    hslToHex(h, Math.max(0.15, s*0.40), 0.54),
+    hero1:  hslToHex(h, Math.max(0.15, s*0.45), 0.955),
+    hero2:  hslToHex(h, Math.max(0.20, s*0.50), 0.885)
+  };
+}
+var PALETTE_KEYS = ['main','deep','dark','light','border','sub','text','bg','bg2','hero1','hero2'];
+var PRESETS = ['#3a9a60','#e86a9a','#3a8ad0','#8a6ad0','#e88a3a','#d04a4a','#2aa8a0','#5a6a8a'];
+
+function applyThemeToAdmin(base) {
+  var p = genPalette(base);
+  PALETTE_KEYS.forEach(function(k) { document.documentElement.style.setProperty('--'+k, p[k]); });
+  var pal = document.getElementById('palette');
+  pal.innerHTML = PALETTE_KEYS.map(function(k) {
+    return '<div style="background:'+p[k]+'" title="'+k+' '+p[k]+'"></div>';
+  }).join('');
+  return p;
+}
+function onColorInput(v) {
+  window.D.theme.main = v;
+  document.getElementById('theme-hex').value = v.toUpperCase();
+  applyThemeToAdmin(v);
+}
+function onHexInput(v) {
+  if (!/^#?[0-9a-fA-F]{6}$/.test(v)) return;
+  if (v[0] !== '#') v = '#' + v;
+  window.D.theme.main = v.toLowerCase();
+  document.getElementById('theme-color').value = v;
+  applyThemeToAdmin(v);
+}
+function renderTheme() {
+  var base = (window.D.theme && window.D.theme.main) || '#3a9a60';
+  document.getElementById('theme-color').value = base;
+  document.getElementById('theme-hex').value = base.toUpperCase();
+  applyThemeToAdmin(base);
+  document.getElementById('preset-row').innerHTML = PRESETS.map(function(c) {
+    return '<div class="preset" style="background:'+c+'" title="'+c+'" onclick="onColorInput(\''+c+'\');document.getElementById(\'theme-color\').value=\''+c+'\';"></div>';
+  }).join('');
+}
+
+/* ---------- 기본값 시드 (기존 DB 호환) ---------- */
+var SECTION_LIST = [
+  ['notice','공지사항'], ['status','예약 현황'], ['process','진행 방식'], ['collab','협업 작가'],
+  ['price','가격표'], ['sample','포트폴리오 · 샘플'], ['faq','자주 묻는 질문'], ['refund','환불 정책']
+];
+window.seedDefaults = function() {
+  var D = window.D;
+  if (!D.theme) D.theme = { main: '#3a9a60' };
+  if (!D.site) D.site = {};
+  var s = D.site;
+  if (s.page_title === undefined) s.page_title = '커미션';
+  if (s.badge === undefined) s.badge = 'COMMISSION';
+  if (s.name === undefined) s.name = '커미션';
+  if (s.en === undefined) s.en = 'COMMISSION';
+  if (s.desc === undefined) s.desc = '';
+  if (!s.tags) s.tags = [];
+  if (s.footer_name === undefined) s.footer_name = '';
+  if (s.footer_body === undefined) s.footer_body = '';
+  if (s.footer_warn === undefined) s.footer_warn = '';
+  if (!D.sections) D.sections = {};
+  SECTION_LIST.forEach(function(pair) {
+    var k = pair[0];
+    if (!D.sections[k]) D.sections[k] = {};
+    var sec = D.sections[k];
+    if (sec.visible === undefined) sec.visible = (k === 'collab') ? !!(D.collab && D.collab.visible) : true;
+    if (sec.title === undefined) sec.title = pair[1];
+    if (sec.subtitle === undefined) sec.subtitle = '';
+  });
+  var p = D.sections.price;
+  if (p.head1 === undefined) p.head1 = '작업 항목';
+  if (p.head2 === undefined) p.head2 = '포함 내용';
+  if (p.head3 === undefined) p.head3 = '가격';
+  if (p.note === undefined) p.note = '';
+  var r = D.sections.refund;
+  if (r.head1 === undefined) r.head1 = '작업 단계';
+  if (r.head2 === undefined) r.head2 = '환불 비율';
+  if (!D.notice) D.notice = { answer_time: '', items: [] };
+  if (!D.notice.items) D.notice.items = [];
+  if (!D.status) D.status = [];
+  if (!D.process) D.process = [];
+  if (!D.price) D.price = [];
+  if (!D.samples) D.samples = [];
+  if (!D.faq) D.faq = [];
+  if (!D.collab) D.collab = { visible: false, items: [] };
+  if (!D.collab.items) D.collab.items = [];
+  if (!D.refund) D.refund = { intro: '', rows: [] };
+  if (!D.refund.rows) D.refund.rows = [];
+};
+
+/* ---------- 입력값 → window.D ---------- */
+var SITE_FIELDS = ['page_title','badge','name','en','desc','footer_name','footer_body','footer_warn'];
+window.collectInputs = function() {
+  var D = window.D;
+  SITE_FIELDS.forEach(function(k) { D.site[k] = document.getElementById('site-'+k).value; });
+  D.site.tags = document.getElementById('site-tags').value.split(',').map(function(t){ return t.trim(); }).filter(Boolean);
+  D.notice.answer_time = document.getElementById('answer_time').value;
+  D.refund.intro = document.getElementById('refund-intro').value;
+  D.sections.price.head1 = document.getElementById('price-head1').value;
+  D.sections.price.head2 = document.getElementById('price-head2').value;
+  D.sections.price.head3 = document.getElementById('price-head3').value;
+  D.sections.price.note  = document.getElementById('price-note').value;
+  D.sections.refund.head1 = document.getElementById('refund-head1').value;
+  D.sections.refund.head2 = document.getElementById('refund-head2').value;
+  D.collab.visible = !!D.sections.collab.visible;
+};
+
+window.renderAll = function() {
+  var D = window.D;
+  SITE_FIELDS.forEach(function(k) { document.getElementById('site-'+k).value = D.site[k] || ''; });
+  document.getElementById('site-tags').value = (D.site.tags || []).join(', ');
+  document.getElementById('answer_time').value = D.notice.answer_time || '';
+  document.getElementById('refund-intro').value = D.refund.intro || '';
+  document.getElementById('price-head1').value = D.sections.price.head1;
+  document.getElementById('price-head2').value = D.sections.price.head2;
+  document.getElementById('price-head3').value = D.sections.price.head3;
+  document.getElementById('price-note').value  = D.sections.price.note;
+  document.getElementById('refund-head1').value = D.sections.refund.head1;
+  document.getElementById('refund-head2').value = D.sections.refund.head2;
+  document.getElementById('admin-title').textContent = (D.site.name || '커미션') + ' 관리자';
+  document.getElementById('preview-link').href = 'index.html?site=' + window.SITE_KEY;
+  syncPreview();
+  renderTheme();
+  renderSections();
+  renderNotice(); renderStatus(); renderProcess();
+  renderCollab(); renderPrice(); renderSample(); renderFaq(); renderRefund();
+};
+
+function syncPreview() {
+  document.getElementById('tp-badge').textContent = document.getElementById('site-badge').value || 'COMMISSION';
+  document.getElementById('tp-name').textContent = document.getElementById('site-name').value || '커미션';
+}
+document.addEventListener('input', function(e) {
+  if (e.target.id === 'site-badge' || e.target.id === 'site-name') syncPreview();
+});
+
+window.renderHubSection = function() {
+  var h = window.HUB, m = window.META;
+  if (h) {
+    document.getElementById('hub-badge').value = h.badge || '';
+    document.getElementById('hub-title').value = h.title || '';
+    document.getElementById('hub-subtitle').value = h.subtitle || '';
+    document.getElementById('hub-footer').value = h.footer || '';
+    document.getElementById('hub-color').value = h.color || '#3a9a60';
+  }
+  if (m) {
+    document.getElementById('meta-key').textContent = window.SITE_KEY;
+    document.getElementById('meta-visible').checked = m.visible !== false;
+    document.getElementById('meta-order').value = m.order != null ? m.order : 1;
+    document.getElementById('meta-desc').value = m.desc || '';
+  }
+};
+
+/* ---------- Sortable ---------- */
+var _sortables = {};
+function initSortable(elId, dataKey, subKey, renderFn) {
+  if (_sortables[elId]) { try { _sortables[elId].destroy(); } catch(e){} }
+  var el = document.getElementById(elId);
+  if (!el) return;
+  _sortables[elId] = Sortable.create(el, {
+    handle: '.drag-handle', animation: 150, ghostClass: 'sortable-ghost', chosenClass: 'sortable-chosen',
+    onEnd: function(evt) {
+      var arr = subKey ? window.D[dataKey][subKey] : window.D[dataKey];
+      var moved = arr.splice(evt.oldIndex, 1)[0];
+      arr.splice(evt.newIndex, 0, moved);
+      renderFn();
+    }
+  });
+}
+
+/* ---------- 섹션 설정 ---------- */
+function renderSections() {
+  var el = document.getElementById('section-items'); el.innerHTML = '';
+  SECTION_LIST.forEach(function(pair) {
+    var k = pair[0], sec = window.D.sections[k];
+    el.innerHTML +=
+      '<div class="sec-row">' +
+        '<input type="checkbox"'+(sec.visible?' checked':'')+' onchange="window.D.sections.'+k+'.visible=this.checked">' +
+        '<input type="text" value="'+(sec.title||'')+'" placeholder="섹션 제목" oninput="window.D.sections.'+k+'.title=this.value">' +
+        '<input type="text" value="'+(sec.subtitle||'')+'" placeholder="부제 (선택)" oninput="window.D.sections.'+k+'.subtitle=this.value">' +
+      '</div>';
+  });
+}
+
+function renderNotice() {
+  var el = document.getElementById('notice-items'); el.innerHTML = '';
+  (window.D.notice.items||[]).forEach(function(n,i) {
+    el.innerHTML += '<div class="item-card"><div class="item-card-header"><span style="display:flex;align-items:center;gap:8px;"><span class="drag-handle">'+H+'</span><span class="item-card-num">공지 '+(i+1)+'</span></span><button class="btn btn-red" onclick="removeNotice('+i+')">삭제</button></div><div class="field-grid2"><div class="field-row"><label>아이콘</label><input type="text" value="'+(n.icon||'')+'" oninput="window.D.notice.items['+i+'].icon=this.value"></div><div class="field-row"><label>타입</label><select onchange="window.D.notice.items['+i+'].type=this.value"><option value="normal"'+(n.type==="normal"?" selected":"")+'>일반</option><option value="warn"'+(n.type==="warn"?" selected":"")+'>경고(빨강)</option></select></div></div><div class="field-row"><label>제목</label><input type="text" value="'+(n.title||'')+'" oninput="window.D.notice.items['+i+'].title=this.value"></div><div class="field-row"><label>내용</label><textarea oninput="window.D.notice.items['+i+'].body=this.value">'+(n.body||'')+'</textarea></div></div>';
+  });
+  initSortable('notice-items','notice','items',renderNotice);
+}
+function addNotice() { window.D.notice.items.push({icon:'📌',title:'새 공지',body:'내용 입력',type:'normal'}); renderNotice(); }
+function removeNotice(i) { window.D.notice.items.splice(i,1); renderNotice(); }
+
+function renderStatus() {
+  var el = document.getElementById('status-items'); el.innerHTML = '';
+  (window.D.status||[]).forEach(function(s,i) {
+    var opts = ['open','wait','closed'].map(function(t){ return '<option value="'+t+'"'+(s.type===t?' selected':'')+'>'+{open:'접수중',wait:'대기중',closed:'마감'}[t]+'</option>'; }).join('');
+    el.innerHTML += '<div class="status-row"><span class="drag-handle">'+H+'</span><input type="text" value="'+(s.label||'')+'" placeholder="항목명" oninput="window.D.status['+i+'].label=this.value"><input type="text" value="'+(s.desc||'')+'" placeholder="설명" oninput="window.D.status['+i+'].desc=this.value"><select onchange="window.D.status['+i+'].type=this.value">'+opts+'</select><button class="btn btn-red" onclick="removeStatus('+i+')">삭제</button></div>';
+  });
+  initSortable('status-items','status',null,renderStatus);
+}
+function addStatus() { window.D.status.push({label:'새 항목',type:'open',desc:'설명'}); renderStatus(); }
+function removeStatus(i) { window.D.status.splice(i,1); renderStatus(); }
+
+function renderProcess() {
+  var el = document.getElementById('process-items'); el.innerHTML = '';
+  (window.D.process||[]).forEach(function(p,i) {
+    el.innerHTML += '<div class="item-card"><div class="item-card-header"><span style="display:flex;align-items:center;gap:8px;"><span class="drag-handle">'+H+'</span><span class="item-card-num">단계 '+(i+1)+'</span></span><button class="btn btn-red" onclick="removeProcess('+i+')">삭제</button></div><div class="field-row"><label>제목</label><input type="text" value="'+(p.title||'')+'" oninput="window.D.process['+i+'].title=this.value"></div><div class="field-row"><label>내용</label><textarea oninput="window.D.process['+i+'].body=this.value">'+(p.body||'')+'</textarea></div></div>';
+  });
+  initSortable('process-items','process',null,renderProcess);
+}
+function addProcess() { window.D.process.push({title:'새 단계',body:'내용 입력'}); renderProcess(); }
+function removeProcess(i) { window.D.process.splice(i,1); renderProcess(); }
+
+function renderCollab() {
+  var el = document.getElementById('collab-items'); el.innerHTML = '';
+  window.D.collab.items.forEach(function(c,i) {
+    var isUpload = c.image && c.image.indexOf('data:') === 0;
+    var imgMode = isUpload ? 'upload' : 'url';
+    var preview = c.image ? '<img src="'+c.image+'" style="width:60px;height:60px;border-radius:8px;object-fit:cover;border:1px solid #c0d8c0;margin-top:8px;">' : '';
+    el.innerHTML +=
+      '<div class="item-card">' +
+        '<div class="item-card-header">' +
+          '<span style="display:flex;align-items:center;gap:8px;"><span class="drag-handle">'+H+'</span><span class="item-card-num">작가 '+(i+1)+'</span></span>' +
+          '<button class="btn btn-red" onclick="removeCollab('+i+')">삭제</button>' +
+        '</div>' +
+        '<div class="field-row">' +
+          '<label>이미지</label>' +
+          '<div style="display:flex;gap:8px;margin-bottom:8px;">' +
+            '<button type="button" onclick="setCollabImgMode('+i+',\'url\')" style="padding:5px 12px;border-radius:6px;border:1px solid #c0d8c0;font-size:12px;cursor:pointer;background:'+(imgMode==='url'?'var(--main)':'#fff')+';color:'+(imgMode==='url'?'#fff':'var(--main)')+';">URL 입력</button>' +
+            '<button type="button" onclick="setCollabImgMode('+i+',\'upload\')" style="padding:5px 12px;border-radius:6px;border:1px solid #c0d8c0;font-size:12px;cursor:pointer;background:'+(imgMode==='upload'?'var(--main)':'#fff')+';color:'+(imgMode==='upload'?'#fff':'var(--main)')+';">직접 업로드</button>' +
+          '</div>' +
+          '<div id="collab-img-url-'+i+'" style="display:'+(imgMode==='url'?'block':'none')+'">' +
+            '<input type="text" value="'+(imgMode==='url'?(c.image||''):'')+'" placeholder="https://..." oninput="window.D.collab.items['+i+'].image=this.value">' +
+          '</div>' +
+          '<div id="collab-img-upload-'+i+'" style="display:'+(imgMode==='upload'?'block':'none')+'">' +
+            '<input type="file" accept="image/*" style="font-size:13px;" onchange="uploadCollabImg(this,'+i+')">' + preview +
+          '</div>' +
+        '</div>' +
+        '<div class="field-grid2">' +
+          '<div class="field-row"><label>작가명</label><input type="text" value="'+(c.name||'')+'" oninput="window.D.collab.items['+i+'].name=this.value"></div>' +
+          '<div class="field-row"><label>작가 사이트 URL</label><input type="text" value="'+(c.link||'')+'" placeholder="https://..." oninput="window.D.collab.items['+i+'].link=this.value"></div>' +
+        '</div>' +
+        '<div class="field-row"><label>협업 혜택</label><input type="text" value="'+(c.main_desc||'')+'" oninput="window.D.collab.items['+i+'].main_desc=this.value"></div>' +
+        '<div class="field-row"><label>설명</label><input type="text" value="'+(c.sub_desc||'')+'" oninput="window.D.collab.items['+i+'].sub_desc=this.value"></div>' +
+      '</div>';
+  });
+  initSortable('collab-items','collab','items',renderCollab);
+}
+function setCollabImgMode(i, mode) {
+  window.D.collab.items[i].image = '';
+  renderCollab();
+  var urlEl = document.getElementById('collab-img-url-'+i);
+  var upEl = document.getElementById('collab-img-upload-'+i);
+  if (urlEl) urlEl.style.display = mode === 'url' ? 'block' : 'none';
+  if (upEl) upEl.style.display = mode === 'upload' ? 'block' : 'none';
+}
+function uploadCollabImg(input, i) {
+  var file = input.files[0];
+  if (!file) return;
+  if (file.size > 1024 * 1024) { alert('이미지가 너무 커요! 1MB 이하로 줄여주세요.'); input.value=''; return; }
+  var reader = new FileReader();
+  reader.onload = function(e) { window.D.collab.items[i].image = e.target.result; renderCollab(); };
+  reader.readAsDataURL(file);
+}
+function addCollab() { window.D.collab.items.push({image:'',name:'작가명',link:'',main_desc:'협업 혜택',sub_desc:'설명'}); renderCollab(); }
+function removeCollab(i) { window.D.collab.items.splice(i,1); renderCollab(); }
+
+function renderPrice() {
+  var el = document.getElementById('price-items'); el.innerHTML = '';
+  (window.D.price||[]).forEach(function(p,i) {
+    el.innerHTML += '<div class="item-card"><div class="item-card-header"><span style="display:flex;align-items:center;gap:8px;"><span class="drag-handle">'+H+'</span><span class="item-card-num">항목 '+(i+1)+'</span></span><button class="btn btn-red" onclick="removePrice('+i+')">삭제</button></div><div class="field-grid2"><div class="field-row"><label>카테고리</label><input type="text" value="'+(p.category||'')+'" oninput="window.D.price['+i+'].category=this.value"></div><div class="field-row"><label>배지</label><input type="text" value="'+(p.badge||'')+'" oninput="window.D.price['+i+'].badge=this.value"></div></div><div class="field-grid2"><div class="field-row"><label>항목명</label><input type="text" value="'+(p.item||'')+'" oninput="window.D.price['+i+'].item=this.value"></div><div class="field-row"><label>가격</label><input type="text" value="'+(p.price||'')+'" oninput="window.D.price['+i+'].price=this.value"></div></div><div class="field-row"><label>설명</label><input type="text" value="'+(p.desc||'')+'" oninput="window.D.price['+i+'].desc=this.value"></div></div>';
+  });
+  initSortable('price-items','price',null,renderPrice);
+}
+function addPrice() { window.D.price.push({category:'카테고리',item:'항목명',badge:'',desc:'설명',price:'협의'}); renderPrice(); }
+function removePrice(i) { window.D.price.splice(i,1); renderPrice(); }
+
+function renderSample() {
+  var el = document.getElementById('sample-items'); el.innerHTML = '';
+  (window.D.samples||[]).forEach(function(s,i) {
+    el.innerHTML += '<div class="item-card"><div class="item-card-header"><span style="display:flex;align-items:center;gap:8px;"><span class="drag-handle">'+H+'</span><span class="item-card-num">샘플 '+(i+1)+'</span></span><button class="btn btn-red" onclick="removeSample('+i+')">삭제</button></div><div class="field-row"><label>제목</label><input type="text" value="'+(s.title||'')+'" oninput="window.D.samples['+i+'].title=this.value"></div><div class="field-row"><label>유튜브 URL</label><input type="text" value="'+(s.url||'')+'" placeholder="https://youtu.be/xxxxx" oninput="window.D.samples['+i+'].url=this.value"></div><div class="field-row"><label>이미지 URL (유튜브 대신 사용)</label><input type="text" value="'+(s.thumb||'')+'" placeholder="https://..." oninput="window.D.samples['+i+'].thumb=this.value"></div></div>';
+  });
+  initSortable('sample-items','samples',null,renderSample);
+}
+function addSample() { window.D.samples.push({title:'새 샘플',url:'',thumb:''}); renderSample(); }
+function removeSample(i) { window.D.samples.splice(i,1); renderSample(); }
+
+function renderFaq() {
+  var el = document.getElementById('faq-items'); el.innerHTML = '';
+  (window.D.faq||[]).forEach(function(f,i) {
+    el.innerHTML += '<div class="item-card"><div class="item-card-header"><span style="display:flex;align-items:center;gap:8px;"><span class="drag-handle">'+H+'</span><span class="item-card-num">Q'+(i+1)+'</span></span><button class="btn btn-red" onclick="removeFaq('+i+')">삭제</button></div><div class="field-row"><label>질문</label><input type="text" value="'+(f.question||'')+'" oninput="window.D.faq['+i+'].question=this.value"></div><div class="field-row"><label>답변</label><textarea oninput="window.D.faq['+i+'].answer=this.value">'+(f.answer||'')+'</textarea></div></div>';
+  });
+  initSortable('faq-items','faq',null,renderFaq);
+}
+function addFaq() { window.D.faq.push({question:'질문 입력',answer:'답변 입력'}); renderFaq(); }
+function removeFaq(i) { window.D.faq.splice(i,1); renderFaq(); }
+
+function renderRefund() {
+  var el = document.getElementById('refund-items'); el.innerHTML = '';
+  (window.D.refund.rows||[]).forEach(function(r,i) {
+    var types = ['full','partial','none'].map(function(t){ return '<option value="'+t+'"'+(r.type===t?' selected':'')+'>'+{full:'전액환불',partial:'부분환불',none:'환불불가'}[t]+'</option>'; }).join('');
+    el.innerHTML += '<div class="item-card"><div class="item-card-header"><span style="display:flex;align-items:center;gap:8px;"><span class="drag-handle">'+H+'</span><span class="item-card-num">단계 '+(i+1)+'</span></span><button class="btn btn-red" onclick="removeRefund('+i+')">삭제</button></div><div class="field-grid3"><div class="field-row"><label>작업 단계</label><input type="text" value="'+(r.stage||'')+'" oninput="window.D.refund.rows['+i+'].stage=this.value"></div><div class="field-row"><label>환불 비율</label><input type="text" value="'+(r.rate||'')+'" oninput="window.D.refund.rows['+i+'].rate=this.value"></div><div class="field-row"><label>타입</label><select onchange="window.D.refund.rows['+i+'].type=this.value">'+types+'</select></div></div></div>';
+  });
+  initSortable('refund-items','refund','rows',renderRefund);
+}
+function addRefund() { window.D.refund.rows.push({stage:'단계명',rate:'환불 비율',type:'partial'}); renderRefund(); }
+function removeRefund(i) { window.D.refund.rows.splice(i,1); renderRefund(); }
+</script>
+</body>
+</html>

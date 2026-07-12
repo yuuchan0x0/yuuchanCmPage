@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>커미션</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ===== 테마 컬러 (관리자에서 메인 컬러 1개로 자동 생성) ===== */
+:root {
+  --main:   #3a9a60;
+  --deep:   #2a7a48;
+  --dark:   #1a6a40;
+  --light:  #60c080;
+  --bg:     #f0f8f0;
+  --bg2:    #eef6ee;
+  --border: #a8d4b0;
+  --text:   #4a7050;
+  --sub:    #6aaa80;
+  --hero1:  #eef7ee;
+  --hero2:  #daeedc;
+  --main-rgb: 58,154,96;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; background: #fff; font-family: 'Noto Sans KR', sans-serif; color: #0a1e0e; line-height: 1.6; overflow-x: hidden; }
+.page { width: 100%; background: #fff; }
+
+/* 히어로 */
+.hero { width: 100%; background: linear-gradient(150deg, var(--hero1) 0%, var(--hero2) 50%, var(--hero1) 100%); padding: 72px 0 56px; text-align: center; border-bottom: 2px solid var(--border); position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: -80px; right: -80px; width: 320px; height: 320px; background: rgba(var(--main-rgb),0.07); border-radius: 50%; }
+.hero::after  { content: ''; position: absolute; bottom: -60px; left: -60px; width: 240px; height: 240px; background: rgba(var(--main-rgb),0.09); border-radius: 50%; }
+.hero-inner { position: relative; z-index: 1; padding: 0 20px; }
+.back-btn { position: absolute; top: 24px; left: 28px; z-index: 3; display: none; align-items: center; gap: 6px; background: rgba(255,255,255,0.8); border: 1px solid var(--border); color: var(--dark); font-size: 13px; font-weight: 700; padding: 8px 16px; border-radius: 999px; text-decoration: none; transition: background 0.15s, transform 0.15s; }
+.back-btn:hover { background: #fff; transform: translateX(-3px); }
+.footer-back { display: none; margin-top: 16px; }
+.footer-back a { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.7); border: 1px solid var(--border); color: var(--dark); font-size: 13px; font-weight: 700; padding: 9px 20px; border-radius: 999px; text-decoration: none; transition: background 0.15s; }
+.footer-back a:hover { background: #fff; }
+.hero-badge { display: inline-block; background: var(--main); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: 3px; padding: 6px 20px; border-radius: 999px; margin-bottom: 22px; }
+.hero-name { font-family: 'Noto Serif KR', serif; font-size: 48px; font-weight: 700; color: var(--dark); margin-bottom: 8px; letter-spacing: -1px; }
+.hero-en { font-size: 14px; color: var(--text); letter-spacing: 5px; margin-bottom: 20px; font-weight: 500; }
+.hero-sub { font-size: 15px; color: var(--text); line-height: 2.2; margin-bottom: 28px; }
+.hero-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.tag { background: rgba(var(--main-rgb),0.1); color: var(--dark); font-size: 13px; padding: 6px 18px; border-radius: 999px; border: 1px solid rgba(var(--main-rgb),0.3); font-weight: 500; }
+
+/* 섹션 */
+.section { padding: 56px 80px; border-bottom: 1px solid var(--bg2); }
+.section-title { font-size: 20px; font-weight: 700; color: var(--dark); margin-bottom: 6px; display: flex; align-items: center; gap: 12px; }
+.section-title::before { content: ''; display: inline-block; width: 5px; height: 22px; background: linear-gradient(180deg, var(--light), var(--main)); border-radius: 3px; flex-shrink: 0; }
+.section-subtitle { font-size: 13px; color: var(--sub); margin-bottom: 32px; padding-left: 17px; }
+
+/* 공지 */
+.notice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.notice-card { border: 1px solid var(--border); border-radius: 14px; padding: 22px 20px; background: var(--bg); }
+.notice-card-title { font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 10px; }
+.notice-card-body { font-size: 13px; color: var(--text); line-height: 1.9; word-break: keep-all; }
+.notice-card--warn { background: #fff5f5; border-color: #f0a0a0; }
+.notice-card--warn .notice-card-title { color: #c03030; }
+
+/* 예약현황 */
+.status-wrap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.status-item { border-radius: 14px; padding: 22px 16px; text-align: center; }
+.status-open   { background: var(--bg); border: 1px solid var(--border); }
+.status-wait   { background: #fff8e0; border: 1px solid #f5c842; }
+.status-closed { background: #f5f5f5; border: 1px solid #ccc; }
+.status-dot { font-size: 22px; margin-bottom: 8px; }
+.status-label { font-size: 13px; font-weight: 700; }
+.status-open   .status-label { color: var(--dark); }
+.status-wait   .status-label { color: #806000; }
+.status-closed .status-label { color: #555; }
+.status-desc { font-size: 12px; margin-top: 5px; }
+.status-open   .status-desc { color: var(--main); }
+.status-wait   .status-desc { color: #a07800; }
+.status-closed .status-desc { color: #888; }
+
+/* 진행방식 */
+.steps { display: flex; flex-direction: column; }
+.step { display: flex; gap: 22px; align-items: flex-start; padding: 24px 0; border-bottom: 1px solid var(--bg2); }
+.step:last-child { border-bottom: none; }
+.step-num { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--light), var(--deep)); color: #fff; font-size: 18px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 3px 10px rgba(var(--main-rgb),0.25); }
+.step-content h4 { font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
+.step-content p { font-size: 13px; color: var(--text); line-height: 1.9; }
+
+/* 협업작가 */
+.collab-grid { display: flex; flex-direction: column; gap: 20px; }
+.collab-card { display: flex; gap: 24px; align-items: center; background: var(--bg); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
+.collab-img { width: 100px; height: 100px; min-width: 100px; border-radius: 12px; object-fit: cover; background: var(--hero2); display: block; }
+.collab-img-empty { width: 100px; height: 100px; min-width: 100px; border-radius: 12px; background: var(--hero2); display: flex; align-items: center; justify-content: center; color: var(--sub); font-size: 12px; }
+.collab-info { flex: 1; }
+.collab-name { font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
+.collab-label { font-size: 11px; font-weight: 700; color: var(--sub); letter-spacing: 1px; margin-bottom: 2px; }
+.collab-main { font-size: 14px; color: var(--text); margin-bottom: 6px; }
+.collab-sub { font-size: 13px; color: var(--sub); line-height: 1.7; }
+
+/* 가격표 */
+.price-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.price-table thead th { background: var(--bg2); color: var(--dark); padding: 13px 20px; text-align: left; font-weight: 700; font-size: 13px; border-bottom: 2px solid var(--border); }
+.price-table thead th:last-child { text-align: right; }
+.price-table td { padding: 14px 20px; border-bottom: 1px solid var(--bg2); vertical-align: middle; }
+.price-table td:last-child { text-align: right; font-weight: 700; color: var(--main); white-space: nowrap; }
+.price-table tbody tr:hover td { background: var(--bg); }
+.price-cat td { font-size: 12px; font-weight: 700; color: var(--sub); background: var(--bg); letter-spacing: 1px; padding: 10px 20px; border-bottom: none; }
+.price-badge { display: inline-block; font-size: 11px; background: var(--hero2); color: var(--dark); padding: 3px 10px; border-radius: 999px; margin-left: 8px; font-weight: 500; }
+.price-sub { font-size: 13px; color: var(--text); }
+.price-note { font-size: 13px; color: var(--text); margin-top: 20px; padding: 14px 20px; background: var(--bg); border-radius: 10px; border-left: 4px solid var(--light); line-height: 2; }
+
+/* 샘플 */
+.sample-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.sample-card { border-radius: 14px; border: 1px solid var(--border); overflow: hidden; background: var(--bg); }
+.sample-video { position: relative; width: 100%; padding-top: 56.25%; }
+.sample-video iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+.sample-thumb { width: 100%; object-fit: cover; display: block; }
+.sample-thumb-empty { width: 100%; height: 200px; display: flex; align-items: center; justify-content: center; background: var(--hero2); color: var(--sub); font-size: 13px; }
+.sample-title { padding: 12px 16px; font-size: 13px; font-weight: 700; color: var(--dark); text-align: center; }
+
+/* FAQ */
+.faq-list { display: flex; flex-direction: column; gap: 14px; }
+.faq-item { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.faq-q { display: flex; align-items: flex-start; gap: 12px; padding: 16px 18px; background: var(--bg); font-size: 14px; font-weight: 700; color: var(--dark); }
+.faq-q-mark { width: 26px; height: 26px; border-radius: 50%; background: var(--main); color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.faq-a-mark { width: 26px; height: 26px; border-radius: 50%; background: var(--hero2); color: var(--main); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.faq-a { display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; background: #fff; font-size: 13px; color: var(--text); line-height: 1.9; border-top: 1px solid var(--bg2); word-break: keep-all; }
+
+/* 환불 */
+.refund-intro { font-size: 13px; color: var(--text); line-height: 1.9; margin-bottom: 20px; padding: 14px 20px; background: var(--bg); border-radius: 10px; border-left: 4px solid var(--light); word-break: keep-all; }
+.refund-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.refund-table th { background: var(--bg2); color: var(--dark); padding: 12px 20px; font-weight: 700; font-size: 13px; border-bottom: 2px solid var(--border); text-align: center; }
+.refund-table td { padding: 13px 20px; border-bottom: 1px solid var(--bg2); text-align: center; }
+.refund-full    { color: var(--dark); font-weight: 700; }
+.refund-partial { color: #806000; font-weight: 700; }
+.refund-none    { color: #c03030; font-weight: 700; }
+
+/* 푸터 */
+.footer-sec { background: linear-gradient(160deg, var(--hero1) 0%, var(--hero2) 100%); padding: 48px 80px; text-align: center; border-top: 2px solid var(--border); }
+.footer-name { font-family: 'Noto Serif KR', serif; font-size: 22px; font-weight: 700; color: var(--dark); margin-bottom: 10px; }
+.footer-body { font-size: 13px; color: var(--text); line-height: 2.2; }
+.footer-warn { display: inline-block; margin-top: 12px; font-size: 12px; color: var(--dark); }
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .hero { padding: 48px 20px 40px; }
+  .back-btn { position: static; margin: 0 auto 18px; width: fit-content; }
+  .back-btn[style*="inline-flex"] { display: flex !important; }
+  .hero-name { font-size: 32px; }
+  .hero-en { font-size: 12px; letter-spacing: 3px; }
+  .hero-sub { font-size: 13px; }
+  .section { padding: 36px 20px; }
+  .section-title { font-size: 17px; }
+  .notice-grid { grid-template-columns: 1fr; }
+  .status-wrap { grid-template-columns: 1fr; gap: 10px; }
+  .step { gap: 14px; padding: 18px 0; }
+  .step-num { width: 34px; height: 34px; font-size: 15px; }
+  .step-content h4 { font-size: 14px; }
+  .collab-card { flex-direction: column; align-items: flex-start; gap: 14px; padding: 18px; }
+  .collab-img, .collab-img-empty { width: 80px; height: 80px; min-width: 80px; }
+  .price-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .price-table { min-width: 420px; font-size: 13px; }
+  .price-table thead th, .price-table td { padding: 10px 12px; }
+  .sample-grid { grid-template-columns: 1fr; gap: 14px; }
+  .faq-q { font-size: 13px; padding: 14px; }
+  .faq-a { font-size: 12px; padding: 12px 14px; }
+  .refund-table th, .refund-table td { padding: 10px 12px; font-size: 13px; }
+  .footer-sec { padding: 32px 20px; }
+  .footer-name { font-size: 18px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="hero" id="sec-hero">
+    <a class="back-btn" id="back-btn" href="hub.html">← 커미션 목록</a>
+    <div class="hero-inner">
+      <div class="hero-badge" id="hero-badge"></div>
+      <div class="hero-name" id="hero-name">로딩 중...</div>
+      <div class="hero-en" id="hero-en"></div>
+      <div class="hero-sub" id="hero-sub"></div>
+      <div class="hero-tags" id="hero-tags"></div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-notice">
+    <div class="section-title" id="t-notice">공지사항</div>
+    <div class="section-subtitle" id="s-notice"></div>
+    <div class="notice-grid" id="notice-grid"></div>
+  </div>
+
+  <div class="section" id="sec-status">
+    <div class="section-title" id="t-status">예약 현황</div>
+    <div class="section-subtitle" id="s-status"></div>
+    <div class="status-wrap" id="status-wrap"></div>
+  </div>
+
+  <div class="section" id="sec-process">
+    <div class="section-title" id="t-process">진행 방식</div>
+    <div class="section-subtitle" id="s-process"></div>
+    <div class="steps" id="steps"></div>
+  </div>
+
+  <div class="section" id="sec-collab" style="display:none;">
+    <div class="section-title" id="t-collab">협업 작가</div>
+    <div class="section-subtitle" id="s-collab"></div>
+    <div class="collab-grid" id="collab-grid"></div>
+  </div>
+
+  <div class="section" id="sec-price">
+    <div class="section-title" id="t-price">가격표</div>
+    <div class="section-subtitle" id="s-price"></div>
+    <div class="price-table-wrap">
+      <table class="price-table">
+        <thead><tr><th id="price-h1">작업 항목</th><th id="price-h2">포함 내용</th><th id="price-h3">가격</th></tr></thead>
+        <tbody id="price-tbody"></tbody>
+      </table>
+    </div>
+    <div class="price-note" id="price-note"></div>
+  </div>
+
+  <div class="section" id="sec-sample">
+    <div class="section-title" id="t-sample">포트폴리오 · 샘플</div>
+    <div class="section-subtitle" id="s-sample"></div>
+    <div class="sample-grid" id="sample-grid"></div>
+  </div>
+
+  <div class="section" id="sec-faq">
+    <div class="section-title" id="t-faq">자주 묻는 질문</div>
+    <div class="section-subtitle" id="s-faq"></div>
+    <div class="faq-list" id="faq-list"></div>
+  </div>
+
+  <div class="section" id="sec-refund">
+    <div class="section-title" id="t-refund">환불 정책</div>
+    <div class="section-subtitle" id="s-refund"></div>
+    <div class="refund-intro" id="refund-intro"></div>
+    <table class="refund-table">
+      <thead><tr><th id="refund-h1">작업 단계</th><th id="refund-h2">환불 비율</th></tr></thead>
+      <tbody id="refund-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="footer-sec">
+    <div class="footer-name" id="footer-name"></div>
+    <div class="footer-body">
+      <span id="footer-body"></span>
+      <span class="footer-warn" id="footer-warn"></span>
+    </div>
+    <div class="footer-back" id="footer-back"><a href="hub.html">← 다른 커미션 보러가기</a></div>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+/* ============================================================
+   ★★★ 새 커미션 사이트를 만들 때는 이 부분만 교체하세요 ★★★
+   (Firebase 콘솔 → 프로젝트 설정 → 내 앱 → SDK 설정)
+   index.html / admin.html / init.html 세 파일 모두 동일하게!
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyDJemQYxfZ-xNLM91I9kXe_KBW1KxSCpHQ",
+  authDomain: "jiyul-commission.firebaseapp.com",
+  databaseURL: "https://jiyul-commission-default-rtdb.firebaseio.com",
+  projectId: "jiyul-commission",
+  storageBucket: "jiyul-commission.firebasestorage.app",
+  messagingSenderId: "732523553497",
+  appId: "1:732523553497:web:e0d0ae68ed4619795f54c8"
+};
+/* ============================================================ */
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+/* 여러 커미션을 한 Firebase에서 운영 — URL ?site=키 로 구분
+   예) index.html?site=illust  →  DB의 illust 노드를 읽음
+   파라미터가 없으면 commission 노드 (기존 리깅 사이트) */
+const SITE_KEY = (new URLSearchParams(location.search).get('site') || 'commission').replace(/[^a-zA-Z0-9_-]/g, '');
+const STATUS_ICONS = { open: '✅', wait: '⏳', closed: '🚫' };
+
+/* ---------- 메인 컬러 1개 → 팔레트 자동 생성 ---------- */
+function hexToHsl(hex) {
+  hex = (hex || '#3a9a60').replace('#','');
+  if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+  const r = parseInt(hex.substr(0,2),16)/255, g = parseInt(hex.substr(2,2),16)/255, b = parseInt(hex.substr(4,2),16)/255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b);
+  let h = 0, s = 0; const l = (max+min)/2; const d = max-min;
+  if (d) {
+    s = l > 0.5 ? d/(2-max-min) : d/(max+min);
+    if (max === r) h = ((g-b)/d + (g < b ? 6 : 0));
+    else if (max === g) h = (b-r)/d + 2;
+    else h = (r-g)/d + 4;
+    h *= 60;
+  }
+  return { h: h, s: s, l: l };
+}
+function hslToHex(h, s, l) {
+  s = Math.max(0, Math.min(1, s)); l = Math.max(0, Math.min(1, l));
+  const c = (1 - Math.abs(2*l - 1)) * s, x = c * (1 - Math.abs((h/60) % 2 - 1)), m = l - c/2;
+  let r=0,g=0,b=0;
+  if (h < 60)      { r=c; g=x; }
+  else if (h<120)  { r=x; g=c; }
+  else if (h<180)  { g=c; b=x; }
+  else if (h<240)  { g=x; b=c; }
+  else if (h<300)  { r=x; b=c; }
+  else             { r=c; b=x; }
+  const to = v => Math.round((v+m)*255).toString(16).padStart(2,'0');
+  return '#' + to(r) + to(g) + to(b);
+}
+function hexToRgbStr(hex) {
+  hex = (hex || '#3a9a60').replace('#','');
+  if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+  return parseInt(hex.substr(0,2),16)+','+parseInt(hex.substr(2,2),16)+','+parseInt(hex.substr(4,2),16);
+}
+window.genPalette = function(base) {
+  const c = hexToHsl(base), h = c.h, s = c.s;
+  return {
+    main:   base,
+    deep:   hslToHex(h, Math.min(1, s*1.05), 0.32),
+    dark:   hslToHex(h, Math.min(1, s*1.05), 0.26),
+    light:  hslToHex(h, Math.min(1, s*0.95), 0.56),
+    bg:     hslToHex(h, Math.max(0.15, s*0.45), 0.95),
+    bg2:    hslToHex(h, Math.max(0.12, s*0.35), 0.965),
+    border: hslToHex(h, Math.max(0.20, s*0.50), 0.75),
+    text:   hslToHex(h, Math.max(0.12, s*0.30), 0.36),
+    sub:    hslToHex(h, Math.max(0.15, s*0.40), 0.54),
+    hero1:  hslToHex(h, Math.max(0.15, s*0.45), 0.955),
+    hero2:  hslToHex(h, Math.max(0.20, s*0.50), 0.885)
+  };
+};
+window.applyTheme = function(base, root) {
+  const p = window.genPalette(base || '#3a9a60');
+  const el = root || document.documentElement;
+  Object.keys(p).forEach(k => el.style.setProperty('--'+k, p[k]));
+  el.style.setProperty('--main-rgb', hexToRgbStr(p.main));
+  return p;
+};
+
+/* ---------- 기본값 (DB에 값이 없을 때 대비) ---------- */
+const DEF_SITE = {
+  page_title: '커미션', badge: 'COMMISSION', name: '커미션', en: 'COMMISSION',
+  desc: '', tags: [], footer_name: '', footer_body: '', footer_warn: ''
+};
+const DEF_SECTIONS = {
+  notice:  { visible: true, title: '공지사항',        subtitle: '' },
+  status:  { visible: true, title: '예약 현황',        subtitle: '' },
+  process: { visible: true, title: '진행 방식',        subtitle: '' },
+  collab:  { visible: false, title: '협업 작가',       subtitle: '' },
+  price:   { visible: true, title: '가격표',          subtitle: '', note: '', head1: '작업 항목', head2: '포함 내용', head3: '가격' },
+  sample:  { visible: true, title: '포트폴리오 · 샘플', subtitle: '' },
+  faq:     { visible: true, title: '자주 묻는 질문',   subtitle: '' },
+  refund:  { visible: true, title: '환불 정책',        subtitle: '', head1: '작업 단계', head2: '환불 비율' }
+};
+
+function getYoutubeId(url) {
+  if (!url) return null;
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
+  return m ? m[1] : null;
+}
+const nl = t => (t || '').replace(/\n/g, '<br>');
+function setSection(key, sec) {
+  const el = document.getElementById('sec-' + key);
+  if (el) el.style.display = sec.visible === false ? 'none' : '';
+  const t = document.getElementById('t-' + key); if (t) t.textContent = sec.title || '';
+  const s = document.getElementById('s-' + key); if (s) s.textContent = sec.subtitle || '';
+}
+
+onValue(ref(db, SITE_KEY), function(snapshot) {
+  const d = snapshot.val();
+  if (!d) return;
+
+  // 0. 테마
+  window.applyTheme((d.theme && d.theme.main) || '#3a9a60');
+
+  // 0-1. 사이트 기본 정보
+  const site = Object.assign({}, DEF_SITE, d.site || {});
+  document.title = site.page_title || site.name;
+  document.getElementById('hero-badge').textContent = site.badge || '';
+  document.getElementById('hero-badge').style.display = site.badge ? '' : 'none';
+  document.getElementById('hero-name').textContent = site.name || '';
+  document.getElementById('hero-en').textContent = site.en || '';
+
+  const at = (d.notice && d.notice.answer_time) || '';
+  document.getElementById('hero-sub').innerHTML =
+    nl(site.desc) + (at ? (site.desc ? '<br>' : '') + '문의 답변 시간 : ' + at : '');
+
+  const tags = site.tags || [];
+  document.getElementById('hero-tags').innerHTML =
+    tags.map(t => '<span class="tag"># ' + t + '</span>').join('');
+
+  document.getElementById('footer-name').textContent = site.footer_name || site.name || '';
+  document.getElementById('footer-body').innerHTML = nl(site.footer_body);
+  document.getElementById('footer-warn').textContent = site.footer_warn || '';
+
+  // 0-2. 섹션 제목 / 부제 / 표시여부
+  const sec = {};
+  Object.keys(DEF_SECTIONS).forEach(k => {
+    sec[k] = Object.assign({}, DEF_SECTIONS[k], (d.sections && d.sections[k]) || {});
+    setSection(k, sec[k]);
+  });
+  // 공지 부제엔 답변시간 자동 추가
+  if (at) {
+    const base = sec.notice.subtitle;
+    document.getElementById('s-notice').textContent =
+      (base ? base + ' · ' : '') + '문의 답변 시간 : ' + at;
+  }
+
+  // 1. 공지
+  const ng = document.getElementById('notice-grid'); ng.innerHTML = '';
+  ((d.notice && d.notice.items) || []).forEach(n => {
+    const cls = n.type === 'warn' ? ' notice-card--warn' : '';
+    ng.innerHTML += `<div class="notice-card${cls}"><div class="notice-card-title">${n.icon || ''} ${n.title || ''}</div><div class="notice-card-body">${nl(n.body)}</div></div>`;
+  });
+
+  // 2. 예약현황
+  const sw = document.getElementById('status-wrap'); sw.innerHTML = '';
+  (d.status || []).forEach(s => {
+    sw.innerHTML += `<div class="status-item status-${s.type}"><div class="status-dot">${STATUS_ICONS[s.type] || '✅'}</div><div class="status-label">${s.label || ''}</div><div class="status-desc">${s.desc || ''}</div></div>`;
+  });
+
+  // 3. 진행방식
+  const steps = document.getElementById('steps'); steps.innerHTML = '';
+  (d.process || []).forEach((p, i) => {
+    steps.innerHTML += `<div class="step"><div class="step-num">${i+1}</div><div class="step-content"><h4>${p.title || ''}</h4><p>${nl(p.body)}</p></div></div>`;
+  });
+
+  // 4. 협업작가
+  const cg = document.getElementById('collab-grid'); cg.innerHTML = '';
+  ((d.collab && d.collab.items) || []).forEach(c => {
+    const img = c.image
+      ? `<img class="collab-img" src="${c.image}" alt="${c.name || ''}">`
+      : `<div class="collab-img-empty">이미지</div>`;
+    const nameEl = c.link
+      ? `<a href="${c.link}" target="_blank" style="text-decoration:none;color:inherit;"><div class="collab-name" style="cursor:pointer;text-decoration:underline;text-underline-offset:3px;">${c.name || ''}</div></a>`
+      : `<div class="collab-name">${c.name || ''}</div>`;
+    cg.innerHTML += `<div class="collab-card">${img}<div class="collab-info">${nameEl}<div class="collab-label">협업 혜택</div><div class="collab-main">${c.main_desc || ''}</div><div class="collab-label" style="margin-top:6px;">설명</div><div class="collab-sub">${c.sub_desc || ''}</div></div></div>`;
+  });
+
+  // 5. 가격표
+  document.getElementById('price-h1').textContent = sec.price.head1;
+  document.getElementById('price-h2').textContent = sec.price.head2;
+  document.getElementById('price-h3').textContent = sec.price.head3;
+  const noteEl = document.getElementById('price-note');
+  noteEl.innerHTML = nl(sec.price.note);
+  noteEl.style.display = sec.price.note ? '' : 'none';
+  const tb = document.getElementById('price-tbody'); tb.innerHTML = '';
+  let lastCat = '';
+  (d.price || []).forEach(p => {
+    if (p.category && p.category !== lastCat) {
+      tb.innerHTML += `<tr class="price-cat"><td colspan="3">${p.category}</td></tr>`;
+      lastCat = p.category;
+    }
+    const badge = p.badge ? `<span class="price-badge">${p.badge}</span>` : '';
+    tb.innerHTML += `<tr><td>${p.item || ''}${badge}</td><td class="price-sub">${p.desc || ''}</td><td>${p.price || ''}</td></tr>`;
+  });
+
+  // 6. 샘플
+  const sg = document.getElementById('sample-grid'); sg.innerHTML = '';
+  (d.samples || []).forEach(s => {
+    const embedId = getYoutubeId(s.url);
+    let media;
+    if (embedId) media = `<div class="sample-video"><iframe src="https://www.youtube.com/embed/${embedId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+    else if (s.thumb) media = `<img class="sample-thumb" src="${s.thumb}" alt="${s.title || ''}">`;
+    else media = `<div class="sample-thumb-empty">[ 샘플 URL을 입력해 주세요 ]</div>`;
+    sg.innerHTML += `<div class="sample-card">${media}<div class="sample-title">${s.title || ''}</div></div>`;
+  });
+
+  // 7. FAQ
+  const fl = document.getElementById('faq-list'); fl.innerHTML = '';
+  (d.faq || []).forEach(f => {
+    fl.innerHTML += `<div class="faq-item"><div class="faq-q"><div class="faq-q-mark">Q</div>${f.question || ''}</div><div class="faq-a"><div class="faq-a-mark">A</div>${f.answer || ''}</div></div>`;
+  });
+
+  // 8. 환불
+  document.getElementById('refund-h1').textContent = sec.refund.head1;
+  document.getElementById('refund-h2').textContent = sec.refund.head2;
+  document.getElementById('refund-intro').innerHTML = nl(d.refund && d.refund.intro);
+  const rt = document.getElementById('refund-tbody'); rt.innerHTML = '';
+  ((d.refund && d.refund.rows) || []).forEach(r => {
+    const cls = r.type === 'full' ? 'refund-full' : r.type === 'none' ? 'refund-none' : 'refund-partial';
+    rt.innerHTML += `<tr><td>${r.stage || ''}</td><td class="${cls}">${r.rate || ''}</td></tr>`;
+  });
+
+  // iframe 높이 전달
+  window.parent.postMessage({ height: document.body.scrollHeight }, '*');
+});
+
+// 커미션이 2개 이상일 때만 "목록으로" 버튼 표시
+onValue(ref(db, '_sites'), function(snap) {
+  const list = snap.val() || {};
+  const count = Object.keys(list).filter(k => list[k] && list[k].visible !== false).length;
+  if (count < 2) return;
+  document.getElementById('back-btn').style.display = 'inline-flex';
+  document.getElementById('footer-back').style.display = 'block';
+  window.parent.postMessage({ height: document.body.scrollHeight }, '*');
+}, { onlyOnce: true });
+
+// iframe 스크롤 제어
+window.addEventListener('message', e => {
+  if (!e.data) return;
+  if (e.data.scrollTo === 'top') { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  if (e.data.scrollTo) {
+    const el = document.getElementById(e.data.scrollTo);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+});
+</script>
+</body>
+</html>
