@@ -1,953 +1,509 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>yuuchan Commission</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>커미션</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#11151c;
-    --bg-alt:#161b24;
-    --surface:#1c222c;
-    --border:#2a323e;
-    --text:#dfe3ea;
-    --text-dim:#8b94a3;
-    --accent:#5c7693;
-    --accent-bright:#8fa9c2;
-    --accent-glow:rgba(124,151,179,.30);
-    --gap-side: clamp(1.25rem, 6vw, 4rem);
-    --gap-section: clamp(3.5rem, 9vw, 6.5rem);
-    --radius: 6px;
-  }
+/* ===== 테마 컬러 (관리자에서 메인 컬러 1개로 자동 생성) ===== */
+:root {
+  --main:   #3a9a60;
+  --deep:   #2a7a48;
+  --dark:   #1a6a40;
+  --light:  #60c080;
+  --bg:     #f0f8f0;
+  --bg2:    #eef6ee;
+  --border: #a8d4b0;
+  --text:   #4a7050;
+  --sub:    #6aaa80;
+  --hero1:  #eef7ee;
+  --hero2:  #daeedc;
+  --main-rgb: 58,154,96;
+}
 
-  *{ box-sizing:border-box; }
-  html{ scroll-behavior:smooth; }
-  @media (prefers-reduced-motion: reduce){
-    html{ scroll-behavior:auto; }
-    *{ animation:none !important; transition:none !important; }
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; background: #fff; font-family: 'Noto Sans KR', sans-serif; color: #0a1e0e; line-height: 1.6; overflow-x: hidden; }
+.page { width: 100%; background: #fff; }
 
-  body{
-    margin:0;
-    width:100%;
-    background:var(--bg);
-    color:var(--text);
-    font-family:"IBM Plex Sans KR", sans-serif;
-    font-weight:400;
-    line-height:1.7;
-    -webkit-font-smoothing:antialiased;
-  }
+/* 히어로 */
+.hero { width: 100%; background: linear-gradient(150deg, var(--hero1) 0%, var(--hero2) 50%, var(--hero1) 100%); padding: 72px 0 56px; text-align: center; border-bottom: 2px solid var(--border); position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: -80px; right: -80px; width: 320px; height: 320px; background: rgba(var(--main-rgb),0.07); border-radius: 50%; }
+.hero::after  { content: ''; position: absolute; bottom: -60px; left: -60px; width: 240px; height: 240px; background: rgba(var(--main-rgb),0.09); border-radius: 50%; }
+.hero-inner { position: relative; z-index: 1; padding: 0 20px; }
+.back-btn { position: absolute; top: 24px; left: 28px; z-index: 3; display: none; align-items: center; gap: 6px; background: rgba(255,255,255,0.8); border: 1px solid var(--border); color: var(--dark); font-size: 13px; font-weight: 700; padding: 8px 16px; border-radius: 999px; text-decoration: none; transition: background 0.15s, transform 0.15s; }
+.back-btn:hover { background: #fff; transform: translateX(-3px); }
+.footer-back { display: none; margin-top: 16px; }
+.footer-back a { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.7); border: 1px solid var(--border); color: var(--dark); font-size: 13px; font-weight: 700; padding: 9px 20px; border-radius: 999px; text-decoration: none; transition: background 0.15s; }
+.footer-back a:hover { background: #fff; }
+.hero-badge { display: inline-block; background: var(--main); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: 3px; padding: 6px 20px; border-radius: 999px; margin-bottom: 22px; }
+.hero-name { font-family: 'Noto Serif KR', serif; font-size: 48px; font-weight: 700; color: var(--dark); margin-bottom: 8px; letter-spacing: -1px; }
+.hero-en { font-size: 14px; color: var(--text); letter-spacing: 5px; margin-bottom: 20px; font-weight: 500; }
+.hero-sub { font-size: 15px; color: var(--text); line-height: 2.2; margin-bottom: 28px; }
+.hero-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.tag { background: rgba(var(--main-rgb),0.1); color: var(--dark); font-size: 13px; padding: 6px 18px; border-radius: 999px; border: 1px solid rgba(var(--main-rgb),0.3); font-weight: 500; }
 
-  h1,h2,h3{
-    font-family:"Gowun Batang", serif;
-    font-weight:700;
-    margin:0;
-    color:var(--text);
-  }
+/* 섹션 */
+.section { padding: 56px 80px; border-bottom: 1px solid var(--bg2); }
+.section-title { font-size: 20px; font-weight: 700; color: var(--dark); margin-bottom: 6px; display: flex; align-items: center; gap: 12px; }
+.section-title::before { content: ''; display: inline-block; width: 5px; height: 22px; background: linear-gradient(180deg, var(--light), var(--main)); border-radius: 3px; flex-shrink: 0; }
+.section-subtitle { font-size: 13px; color: var(--sub); margin-bottom: 32px; padding-left: 17px; }
 
-  a{ color:inherit; text-decoration:none; }
-  ul,ol{ margin:0; padding:0; list-style:none; }
-  button{ font-family:inherit; cursor:pointer; }
-  input,select,textarea{ font-family:inherit; }
+/* 공지 */
+.notice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.notice-card { border: 1px solid var(--border); border-radius: 14px; padding: 22px 20px; background: var(--bg); }
+.notice-card-title { font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 10px; }
+.notice-card-body { font-size: 13px; color: var(--text); line-height: 1.9; word-break: keep-all; }
+.notice-card--warn { background: #fff5f5; border-color: #f0a0a0; }
+.notice-card--warn .notice-card-title { color: #c03030; }
 
-  :focus-visible{
-    outline:2px solid var(--accent-bright);
-    outline-offset:3px;
-  }
+/* 예약현황 */
+.status-wrap { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.status-item { border-radius: 14px; padding: 22px 16px; text-align: center; }
+.status-open   { background: var(--bg); border: 1px solid var(--border); }
+.status-wait   { background: #fff8e0; border: 1px solid #f5c842; }
+.status-closed { background: #f5f5f5; border: 1px solid #ccc; }
+.status-dot { font-size: 22px; margin-bottom: 8px; }
+.status-label { font-size: 13px; font-weight: 700; }
+.status-open   .status-label { color: var(--dark); }
+.status-wait   .status-label { color: #806000; }
+.status-closed .status-label { color: #555; }
+.status-desc { font-size: 12px; margin-top: 5px; }
+.status-open   .status-desc { color: var(--main); }
+.status-wait   .status-desc { color: #a07800; }
+.status-closed .status-desc { color: #888; }
 
-  .eyebrow{
-    font-family:"IBM Plex Mono", monospace;
-    font-size:.72rem;
-    letter-spacing:.22em;
-    text-transform:uppercase;
-    color:var(--accent-bright);
-    margin:0 0 .9rem;
-  }
+/* 진행방식 */
+.steps { display: flex; flex-direction: column; }
+.step { display: flex; gap: 22px; align-items: flex-start; padding: 24px 0; border-bottom: 1px solid var(--bg2); }
+.step:last-child { border-bottom: none; }
+.step-num { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--light), var(--deep)); color: #fff; font-size: 18px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 3px 10px rgba(var(--main-rgb),0.25); }
+.step-content h4 { font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
+.step-content p { font-size: 13px; color: var(--text); line-height: 1.9; }
 
-  /* ---------- nav ---------- */
-  .gnav{
-    position:sticky;
-    top:0;
-    width:100%;
-    z-index:100;
-    background:rgba(17,21,28,.86);
-    backdrop-filter:blur(10px);
-    border-bottom:1px solid var(--border);
-  }
-  .gnav-inner{
-    width:100%;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:clamp(.8rem,2vw,1.1rem) var(--gap-side);
-    position:relative;
-  }
-  .gnav-brand{
-    font-family:"Gowun Batang", serif;
-    font-size:1.05rem;
-    letter-spacing:.02em;
-  }
-  .gnav-toggle{
-    display:none;
-    background:none;
-    border:1px solid var(--border);
-    color:var(--text);
-    border-radius:var(--radius);
-    padding:.4rem .7rem;
-    font-size:.85rem;
-  }
-  .gnav-list{
-    display:flex;
-    gap:clamp(1rem,3vw,2.4rem);
-  }
-  .gnav-list a{
-    font-size:.88rem;
-    color:var(--text-dim);
-    position:relative;
-    padding:.2rem 0;
-    transition:color .25s ease;
-  }
-  .gnav-list a::after{
-    content:"";
-    position:absolute;
-    left:0; bottom:-3px;
-    width:0%; height:1px;
-    background:var(--accent-bright);
-    transition:width .25s ease;
-  }
-  .gnav-list a.active,
-  .gnav-list a:hover{ color:var(--text); }
-  .gnav-list a.active::after,
-  .gnav-list a:hover::after{ width:100%; }
+/* 협업작가 */
+.collab-grid { display: flex; flex-direction: column; gap: 20px; }
+.collab-card { display: flex; gap: 24px; align-items: center; background: var(--bg); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
+.collab-img { width: 100px; height: 100px; min-width: 100px; border-radius: 12px; object-fit: cover; background: var(--hero2); display: block; }
+.collab-img-empty { width: 100px; height: 100px; min-width: 100px; border-radius: 12px; background: var(--hero2); display: flex; align-items: center; justify-content: center; color: var(--sub); font-size: 12px; }
+.collab-info { flex: 1; }
+.collab-name { font-size: 16px; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
+.collab-label { font-size: 11px; font-weight: 700; color: var(--sub); letter-spacing: 1px; margin-bottom: 2px; }
+.collab-main { font-size: 14px; color: var(--text); margin-bottom: 6px; }
+.collab-sub { font-size: 13px; color: var(--sub); line-height: 1.7; }
 
-  @media (max-width:760px){
-    .gnav-toggle{ display:inline-flex; align-items:center; gap:.4rem; }
-    .gnav-list{
-      position:absolute;
-      top:100%; left:0;
-      width:100%;
-      flex-direction:column;
-      gap:0;
-      background:var(--bg-alt);
-      border-bottom:1px solid var(--border);
-      max-height:0;
-      overflow:hidden;
-      transition:max-height .3s ease;
-    }
-    .gnav-list.open{ max-height:420px; }
-    .gnav-list li{ width:100%; }
-    .gnav-list a{
-      display:block;
-      width:100%;
-      padding:.9rem var(--gap-side);
-      border-top:1px solid var(--border);
-    }
-    .gnav-list a::after{ display:none; }
-  }
+/* 가격표 */
+.price-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.price-table thead th { background: var(--bg2); color: var(--dark); padding: 13px 20px; text-align: left; font-weight: 700; font-size: 13px; border-bottom: 2px solid var(--border); }
+.price-table thead th:last-child { text-align: right; }
+.price-table td { padding: 14px 20px; border-bottom: 1px solid var(--bg2); vertical-align: middle; }
+.price-table td:last-child { text-align: right; font-weight: 700; color: var(--main); white-space: nowrap; }
+.price-table tbody tr:hover td { background: var(--bg); }
+.price-cat td { font-size: 12px; font-weight: 700; color: var(--sub); background: var(--bg); letter-spacing: 1px; padding: 10px 20px; border-bottom: none; }
+.price-badge { display: inline-block; font-size: 11px; background: var(--hero2); color: var(--dark); padding: 3px 10px; border-radius: 999px; margin-left: 8px; font-weight: 500; }
+.price-sub { font-size: 13px; color: var(--text); }
+.price-note { font-size: 13px; color: var(--text); margin-top: 20px; padding: 14px 20px; background: var(--bg); border-radius: 10px; border-left: 4px solid var(--light); line-height: 2; }
 
-  /* ---------- wave divider (signature element) ---------- */
-  .wave-divider{ width:100%; line-height:0; background:inherit; }
-  .wave-divider svg{ width:100%; height:46px; display:block; }
-  .wave-line{ fill:none; stroke:var(--accent); stroke-width:1.4; opacity:.5; }
-  .wave-glow{ fill:none; stroke:var(--accent-bright); stroke-width:7; opacity:.16; filter:blur(7px); animation:waveGlow 7s ease-in-out infinite; }
-  @keyframes waveGlow{ 0%,100%{ opacity:.10; } 50%{ opacity:.28; } }
+/* 샘플 */
+.sample-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.sample-card { border-radius: 14px; border: 1px solid var(--border); overflow: hidden; background: var(--bg); }
+.sample-video { position: relative; width: 100%; padding-top: 56.25%; }
+.sample-video iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+.sample-thumb { width: 100%; object-fit: cover; display: block; }
+.sample-thumb-empty { width: 100%; height: 200px; display: flex; align-items: center; justify-content: center; background: var(--hero2); color: var(--sub); font-size: 13px; }
+.sample-title { padding: 12px 16px; font-size: 13px; font-weight: 700; color: var(--dark); text-align: center; }
 
-  /* ---------- hero ---------- */
-  .hero{
-    width:100%;
-    min-height:clamp(380px,62vh,640px);
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    position:relative;
-    overflow:hidden;
-    padding: clamp(2.5rem,8vw,4rem) var(--gap-side);
-    background:
-      radial-gradient(ellipse 70% 50% at 50% 20%, var(--accent-glow), transparent 70%),
-      var(--bg);
-  }
-  .hero .eyebrow{ margin-bottom:1.1rem; }
-  .hero h1{
-    font-size:clamp(2.2rem,6.4vw,3.7rem);
-    letter-spacing:.01em;
-  }
-  .hero-sub{
-    margin-top:1rem;
-    color:var(--text-dim);
-    font-size:clamp(.95rem,1.8vw,1.05rem);
-    max-width:46ch;
-  }
-  .hero-status{
-    margin-top:1.8rem;
-    display:inline-flex;
-    align-items:center;
-    gap:.5rem;
-    font-family:"IBM Plex Mono", monospace;
-    font-size:.78rem;
-    letter-spacing:.08em;
-    color:var(--accent-bright);
-    border:1px solid var(--border);
-    border-radius:999px;
-    padding:.5rem 1.1rem;
-  }
-  .hero-status .dot{
-    width:7px; height:7px; border-radius:50%;
-    background:var(--accent-bright);
-    box-shadow:0 0 8px var(--accent-bright);
-  }
+/* FAQ */
+.faq-list { display: flex; flex-direction: column; gap: 14px; }
+.faq-item { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.faq-q { display: flex; align-items: flex-start; gap: 12px; padding: 16px 18px; background: var(--bg); font-size: 14px; font-weight: 700; color: var(--dark); }
+.faq-q-mark { width: 26px; height: 26px; border-radius: 50%; background: var(--main); color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.faq-a-mark { width: 26px; height: 26px; border-radius: 50%; background: var(--hero2); color: var(--main); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.faq-a { display: flex; align-items: flex-start; gap: 12px; padding: 14px 18px; background: #fff; font-size: 13px; color: var(--text); line-height: 1.9; border-top: 1px solid var(--bg2); word-break: keep-all; }
 
-  /* ---------- sections ---------- */
-  .section{ width:100%; background:var(--bg); }
-  .section.section-alt{ background:var(--bg-alt); }
-  .section-inner{
-    width:100%;
-    padding: var(--gap-section) var(--gap-side);
-  }
-  .section-head{ margin-bottom:clamp(2rem,5vw,3rem); }
-  .section-head h2{ font-size:clamp(1.6rem,4vw,2.3rem); }
-  .section-desc{
-    margin-top:.8rem;
-    color:var(--text-dim);
-    max-width:60ch;
-  }
+/* 환불 */
+.refund-intro { font-size: 13px; color: var(--text); line-height: 1.9; margin-bottom: 20px; padding: 14px 20px; background: var(--bg); border-radius: 10px; border-left: 4px solid var(--light); word-break: keep-all; }
+.refund-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.refund-table th { background: var(--bg2); color: var(--dark); padding: 12px 20px; font-weight: 700; font-size: 13px; border-bottom: 2px solid var(--border); text-align: center; }
+.refund-table td { padding: 13px 20px; border-bottom: 1px solid var(--bg2); text-align: center; }
+.refund-full    { color: var(--dark); font-weight: 700; }
+.refund-partial { color: #806000; font-weight: 700; }
+.refund-none    { color: #c03030; font-weight: 700; }
 
-  /* ---------- notice ---------- */
-  .notice-list{ display:flex; flex-direction:column; }
-  .notice-item{
-    display:grid;
-    grid-template-columns:auto auto 1fr;
-    gap:.4rem 1rem;
-    align-items:baseline;
-    padding:1.4rem 0;
-    border-bottom:1px solid var(--border);
-  }
-  .notice-item:first-child{ border-top:1px solid var(--border); }
-  .notice-tag{
-    font-family:"IBM Plex Mono", monospace;
-    font-size:.7rem;
-    letter-spacing:.1em;
-    color:var(--accent-bright);
-    border:1px solid var(--border);
-    border-radius:999px;
-    padding:.2rem .6rem;
-    white-space:nowrap;
-  }
-  .notice-date{
-    font-family:"IBM Plex Mono", monospace;
-    font-size:.78rem;
-    color:var(--text-dim);
-    white-space:nowrap;
-  }
-  .notice-title{
-    grid-column:1 / -1;
-    margin:.5rem 0 0;
-    font-weight:600;
-    font-size:1.02rem;
-  }
-  .notice-body{
-    grid-column:1 / -1;
-    margin:.3rem 0 0;
-    color:var(--text-dim);
-    font-size:.92rem;
-    white-space:pre-line;
-  }
-  @media (max-width:560px){
-    .notice-item{ grid-template-columns:auto 1fr; }
-  }
+/* 푸터 */
+.footer-sec { background: linear-gradient(160deg, var(--hero1) 0%, var(--hero2) 100%); padding: 48px 80px; text-align: center; border-top: 2px solid var(--border); }
+.footer-name { font-family: 'Noto Serif KR', serif; font-size: 22px; font-weight: 700; color: var(--dark); margin-bottom: 10px; }
+.footer-body { font-size: 13px; color: var(--text); line-height: 2.2; }
+.footer-warn { display: inline-block; margin-top: 12px; font-size: 12px; color: var(--dark); }
 
-  /* ---------- inquiry ---------- */
-  .inquiry-form{
-    width:100%;
-    max-width:none;
-    display:flex;
-    flex-direction:column;
-    gap:1.2rem;
-    margin-top:1rem;
-  }
-  .form-row{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:1.2rem;
-  }
-  @media (max-width:640px){
-    .form-row{ grid-template-columns:1fr; }
-  }
-  .inquiry-form label{
-    display:flex;
-    flex-direction:column;
-    gap:.5rem;
-    font-size:.85rem;
-    color:var(--text-dim);
-  }
-  .inquiry-form input,
-  .inquiry-form select,
-  .inquiry-form textarea{
-    width:100%;
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    color:var(--text);
-    padding:.75rem .9rem;
-    font-size:.92rem;
-    resize:vertical;
-  }
-  .inquiry-form input::placeholder,
-  .inquiry-form textarea::placeholder{ color:#5b6472; }
-  .form-check{
-    flex-direction:row;
-    align-items:center;
-    gap:.6rem;
-    font-size:.85rem;
-  }
-  .form-check input{ width:auto; accent-color:var(--accent-bright); }
-  .form-actions{
-    display:flex;
-    flex-wrap:wrap;
-    gap:1rem;
-  }
-  .btn-copy, .btn-pdf{
-    border-radius:var(--radius);
-    padding:.85rem 1.8rem;
-    font-size:.92rem;
-    font-weight:600;
-    transition:opacity .2s ease, background .2s ease;
-  }
-  .btn-copy{
-    background:transparent;
-    border:1px solid var(--accent-bright);
-    color:var(--accent-bright);
-  }
-  .btn-copy:hover{ background:rgba(143,169,194,.12); }
-  .btn-pdf{
-    background:var(--accent-bright);
-    color:#11151c;
-    border:none;
-  }
-  .btn-pdf:hover{ opacity:.85; }
-  .form-status{
-    font-size:.85rem;
-    color:var(--accent-bright);
-    min-height:1.2em;
-    margin:0;
-  }
-  .form-note{
-    font-size:.78rem;
-    color:var(--text-dim);
-    border-left:2px solid var(--border);
-    padding-left:.8rem;
-  }
-
-  /* ---------- pdf template (offscreen capture target) ---------- */
-  .pdf-template{
-    position:fixed;
-    left:-9999px;
-    top:0;
-    width:680px;
-    background:#ffffff;
-    color:#1c222c;
-    font-family:"IBM Plex Sans KR", sans-serif;
-    padding:48px;
-  }
-  .pdf-template h2{
-    font-family:"Gowun Batang", serif;
-    font-size:22px;
-    margin:0 0 28px;
-    color:#11151c;
-  }
-  .pdf-row{
-    display:flex;
-    gap:12px;
-    padding:14px 0;
-    border-bottom:1px solid #e3e6ea;
-  }
-  .pdf-label{
-    width:120px;
-    flex-shrink:0;
-    font-weight:600;
-    color:#5c7693;
-    font-size:13px;
-  }
-  .pdf-value{
-    flex:1;
-    font-size:14px;
-    white-space:pre-wrap;
-    word-break:break-word;
-  }
-  .pdf-date{
-    margin-top:28px;
-    font-size:12px;
-    color:#8b94a3;
-    text-align:right;
-  }
-
-  /* ---------- price table (카테고리 > 상세 카테고리 > 항목) ---------- */
-  .price-table{
-    display:flex;
-    flex-direction:column;
-    gap:1.4rem;
-    margin-top:1rem;
-  }
-  .price-category{
-    background:var(--surface);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:1.4rem 1.6rem;
-  }
-  .price-category-name{
-    font-size:1.05rem;
-    margin:0 0 1rem;
-    padding-bottom:.8rem;
-    border-bottom:1px solid var(--border);
-  }
-  .price-groups{
-    display:flex;
-    flex-direction:column;
-    gap:1rem;
-  }
-  .price-group{
-    display:flex;
-    flex-wrap:wrap;
-    align-items:baseline;
-    gap:.5rem 1rem;
-  }
-  .price-group-label{
-    flex-shrink:0;
-    width:128px;
-    font-family:"IBM Plex Mono", monospace;
-    font-size:.72rem;
-    letter-spacing:.05em;
-    color:var(--accent-bright);
-    margin:0;
-  }
-  .price-items{
-    display:flex;
-    flex-wrap:wrap;
-    gap:.6rem;
-    flex:1;
-    min-width:0;
-  }
-  .price-chip{
-    display:inline-flex;
-    align-items:center;
-    gap:.5rem;
-    background:var(--bg);
-    border:1px solid var(--border);
-    border-radius:999px;
-    padding:.45rem .9rem;
-    font-size:.82rem;
-  }
-  .price-chip-name{ color:var(--text); }
-  .price-chip-amount{
-    color:var(--accent-bright);
-    font-family:"IBM Plex Mono", monospace;
-    font-size:.78rem;
-    white-space:nowrap;
-  }
-  .price-note{
-    margin-top:1.6rem;
-    font-size:.82rem;
-    color:var(--text-dim);
-  }
-  @media (max-width:560px){
-    .price-group{ flex-direction:column; align-items:flex-start; gap:.5rem; }
-    .price-group-label{ width:auto; }
-  }
-
-  /* ---------- portfolio ---------- */
-  .portfolio-grid{
-    display:grid;
-    grid-template-columns:repeat(2, 1fr);
-    gap:1.2rem;
-    margin-top:1rem;
-  }
-  .portfolio-item{ margin:0; }
-  .portfolio-ph{
-    width:100%;
-    aspect-ratio:1/1;
-    background:var(--surface);
-    border:1px dashed var(--border);
-    border-radius:var(--radius);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:var(--text-dim);
-    font-size:.85rem;
-  }
-  .portfolio-img{
-    width:100%;
-    aspect-ratio:1/1;
-    object-fit:cover;
-    border-radius:var(--radius);
-    display:block;
-  }
-  .portfolio-item figcaption{
-    margin-top:.6rem;
-    font-size:.82rem;
-    color:var(--text-dim);
-  }
-
-  /* ---------- process ---------- */
-  .process-list{
-    display:flex;
-    flex-direction:column;
-    margin-top:1rem;
-  }
-  .process-item{
-    display:grid;
-    grid-template-columns:auto 1fr;
-    gap:1.4rem;
-    padding:1.6rem 0;
-    border-bottom:1px solid var(--border);
-  }
-  .process-item:first-child{ border-top:1px solid var(--border); }
-  .process-num{
-    font-family:"IBM Plex Mono", monospace;
-    font-size:1.4rem;
-    color:var(--accent-bright);
-    line-height:1;
-  }
-  .process-item h3{ font-size:1.05rem; margin-bottom:.4rem; }
-  .process-item p{ color:var(--text-dim); font-size:.9rem; margin:0; }
-
-  /* ---------- footer ---------- */
-  .site-footer{
-    width:100%;
-    background:var(--bg-alt);
-    border-top:1px solid var(--border);
-    padding: clamp(2.4rem,6vw,3.4rem) var(--gap-side);
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:1rem;
-    text-align:center;
-  }
-  .site-footer .gnav-brand{ font-size:1.1rem; }
-  .sns-list{ display:flex; gap:1.4rem; }
-  .sns-list a{
-    font-family:"IBM Plex Mono", monospace;
-    font-size:.78rem;
-    letter-spacing:.05em;
-    color:var(--text-dim);
-  }
-  .sns-list a:hover{ color:var(--accent-bright); }
-  .copyright{
-    font-size:.75rem;
-    color:#5b6472;
-  }
+/* 반응형 */
+@media (max-width: 768px) {
+  .hero { padding: 48px 20px 40px; }
+  .back-btn { position: static; margin: 0 auto 18px; width: fit-content; }
+  .back-btn[style*="inline-flex"] { display: flex !important; }
+  .hero-name { font-size: 32px; }
+  .hero-en { font-size: 12px; letter-spacing: 3px; }
+  .hero-sub { font-size: 13px; }
+  .section { padding: 36px 20px; }
+  .section-title { font-size: 17px; }
+  .notice-grid { grid-template-columns: 1fr; }
+  .status-wrap { grid-template-columns: 1fr; gap: 10px; }
+  .step { gap: 14px; padding: 18px 0; }
+  .step-num { width: 34px; height: 34px; font-size: 15px; }
+  .step-content h4 { font-size: 14px; }
+  .collab-card { flex-direction: column; align-items: flex-start; gap: 14px; padding: 18px; }
+  .collab-img, .collab-img-empty { width: 80px; height: 80px; min-width: 80px; }
+  .price-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .price-table { min-width: 420px; font-size: 13px; }
+  .price-table thead th, .price-table td { padding: 10px 12px; }
+  .sample-grid { grid-template-columns: 1fr; gap: 14px; }
+  .faq-q { font-size: 13px; padding: 14px; }
+  .faq-a { font-size: 12px; padding: 12px 14px; }
+  .refund-table th, .refund-table td { padding: 10px 12px; font-size: 13px; }
+  .footer-sec { padding: 32px 20px; }
+  .footer-name { font-size: 18px; }
+}
 </style>
 </head>
 <body>
+<div class="page">
 
-  <nav class="gnav">
-    <div class="gnav-inner">
-      <a class="gnav-brand" href="#top">yuuchann</a>
-      <button class="gnav-toggle" id="navToggle" aria-expanded="false" aria-controls="navList">메뉴</button>
-      <ul class="gnav-list" id="navList">
-        <li><a href="#notice" data-nav>공지사항</a></li>
-        <li><a href="#inquiry" data-nav>문의</a></li>
-        <li><a href="#price" data-nav>가격표</a></li>
-        <li><a href="#portfolio" data-nav>포트폴리오</a></li>
-        <li><a href="#process" data-nav>작업 과정</a></li>
-      </ul>
+  <div class="hero" id="sec-hero">
+    <a class="back-btn" id="back-btn" href="hub.html">← 커미션 목록</a>
+    <div class="hero-inner">
+      <div class="hero-badge" id="hero-badge"></div>
+      <div class="hero-name" id="hero-name">로딩 중...</div>
+      <div class="hero-en" id="hero-en"></div>
+      <div class="hero-sub" id="hero-sub"></div>
+      <div class="hero-tags" id="hero-tags"></div>
     </div>
-  </nav>
-
-  <header class="hero" id="top">
-    <p class="eyebrow">Commission Page</p>
-    <h1>yuuchann</h1>
-    <p class="hero-sub">빠른 마감, VSF, VRC</p>
-    <span class="hero-status"><span class="dot"></span>WAITLIST</span>
-  </header>
-
-  <div class="wave-divider" aria-hidden="true">
-    <svg viewBox="0 0 1200 60" preserveAspectRatio="none">
-      <path class="wave-glow" d="M0,30 C150,0 350,60 600,30 C850,0 1050,60 1200,30"/>
-      <path class="wave-line" d="M0,30 C150,0 350,60 600,30 C850,0 1050,60 1200,30"/>
-    </svg>
   </div>
 
-  <main>
+  <div class="section" id="sec-notice">
+    <div class="section-title" id="t-notice">공지사항</div>
+    <div class="section-subtitle" id="s-notice"></div>
+    <div class="notice-grid" id="notice-grid"></div>
+  </div>
 
-    <!-- 공지사항 -->
-    <section class="section" id="notice">
-      <div class="section-inner">
-        <div class="section-head">
-          <p class="eyebrow">Notice</p>
-          <h2>공지사항</h2>
-          <p class="section-desc">문의 전 반드시 확인해주세요.</p>
-        </div>
-        <ul class="notice-list" id="noticeList"></ul>
-      </div>
-    </section>
+  <div class="section" id="sec-status">
+    <div class="section-title" id="t-status">예약 현황</div>
+    <div class="section-subtitle" id="s-status"></div>
+    <div class="status-wrap" id="status-wrap"></div>
+  </div>
 
-    <div class="wave-divider" aria-hidden="true">
-      <svg viewBox="0 0 1200 60" preserveAspectRatio="none">
-        <path class="wave-glow" d="M0,30 C150,60 350,0 600,30 C850,60 1050,0 1200,30"/>
-        <path class="wave-line" d="M0,30 C150,60 350,0 600,30 C850,60 1050,0 1200,30"/>
-      </svg>
+  <div class="section" id="sec-process">
+    <div class="section-title" id="t-process">진행 방식</div>
+    <div class="section-subtitle" id="s-process"></div>
+    <div class="steps" id="steps"></div>
+  </div>
+
+  <div class="section" id="sec-collab" style="display:none;">
+    <div class="section-title" id="t-collab">협업 작가</div>
+    <div class="section-subtitle" id="s-collab"></div>
+    <div class="collab-grid" id="collab-grid"></div>
+  </div>
+
+  <div class="section" id="sec-price">
+    <div class="section-title" id="t-price">가격표</div>
+    <div class="section-subtitle" id="s-price"></div>
+    <div class="price-table-wrap">
+      <table class="price-table">
+        <thead><tr><th id="price-h1">작업 항목</th><th id="price-h2">포함 내용</th><th id="price-h3">가격</th></tr></thead>
+        <tbody id="price-tbody"></tbody>
+      </table>
     </div>
+    <div class="price-note" id="price-note"></div>
+  </div>
 
-    <!-- 문의 양식 -->
-    <section class="section section-alt" id="inquiry">
-      <div class="section-inner">
-        <div class="section-head">
-          <p class="eyebrow">Inquiry</p>
-          <h2>문의 양식</h2>
-          <p class="section-desc">공지사항과 가격표를 확인하신 후 문의해주세요.</p>
-        </div>
-        <form class="inquiry-form">
-          <div class="form-row">
-            <label>닉네임
-              <input type="text" id="fName" placeholder="예: 김유우">
-            </label>
-            <label>연락 방법
-              <input type="text" id="fContact" placeholder="디스코드 / 메일 / 트위터 등">
-            </label>
-          </div>
-          <div class="form-row">
-            <label>커미션 옵션
-              <select id="fType">
-                <option>선택해주세요</option>
-                <option>[가성비 세트]간단 성형+5가지 기본 페이셜+전용 헤어1+전용 의상1+눈 텍스쳐(100,000원)</option>
-                <option>[고급 세트]고급 성형(블랜더 작업)+52가지 페이셜+전용 헤어1+전용 의상1+눈 텍스쳐(200,000원)</option>
-              </select>
-            </label>
-            <label>예산
-              <input type="text" id="fBudget" placeholder="예: 00,000원">
-            </label>
-          </div>
-          <label>요청 내용
-            <textarea id="fMessage" rows="5" placeholder="구체적인 요청 내용, 참고 자료 링크 등을 입력해주세요."></textarea>
-          </label>
-          <label class="form-check">
-            <input type="checkbox">
-            공지사항과 가격표를 모두 확인했습니다
-          </label>
-          <div class="form-actions">
-            <button type="button" class="btn-copy" id="copyBtn">내용 복사하기</button>
-            <button type="button" class="btn-pdf" id="pdfBtn">PDF로 다운로드</button>
-          </div>
-          <p class="form-status" id="formStatus" aria-live="polite"></p>
-          <p class="form-note">※ 이 폼은 서버로 전송되지 않습니다. 복사하거나 PDF로 저장해서 디스코드 · 메일 등으로 직접 보내주세요.</p>
-        </form>
-      </div>
-    </section>
+  <div class="section" id="sec-sample">
+    <div class="section-title" id="t-sample">포트폴리오 · 샘플</div>
+    <div class="section-subtitle" id="s-sample"></div>
+    <div class="sample-grid" id="sample-grid"></div>
+  </div>
 
-    <div class="wave-divider" aria-hidden="true">
-      <svg viewBox="0 0 1200 60" preserveAspectRatio="none">
-        <path class="wave-glow" d="M0,30 C150,0 350,60 600,30 C850,0 1050,60 1200,30"/>
-        <path class="wave-line" d="M0,30 C150,0 350,60 600,30 C850,0 1050,60 1200,30"/>
-      </svg>
+  <div class="section" id="sec-faq">
+    <div class="section-title" id="t-faq">자주 묻는 질문</div>
+    <div class="section-subtitle" id="s-faq"></div>
+    <div class="faq-list" id="faq-list"></div>
+  </div>
+
+  <div class="section" id="sec-refund">
+    <div class="section-title" id="t-refund">환불 정책</div>
+    <div class="section-subtitle" id="s-refund"></div>
+    <div class="refund-intro" id="refund-intro"></div>
+    <table class="refund-table">
+      <thead><tr><th id="refund-h1">작업 단계</th><th id="refund-h2">환불 비율</th></tr></thead>
+      <tbody id="refund-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="footer-sec">
+    <div class="footer-name" id="footer-name"></div>
+    <div class="footer-body">
+      <span id="footer-body"></span>
+      <span class="footer-warn" id="footer-warn"></span>
     </div>
+    <div class="footer-back" id="footer-back"><a href="hub.html">← 다른 커미션 보러가기</a></div>
+  </div>
 
-    <!-- 가격표 -->
-    <section class="section" id="price">
-      <div class="section-inner">
-        <div class="section-head">
-          <p class="eyebrow">Price</p>
-          <h2>가격표</h2>
-          <p class="section-desc">기본 선택지 외 추가 옵션</p>
-        </div>
-        <div class="price-table" id="priceTable"></div>
-        <p class="price-note">※ 작업자가 보유하지 않은 에셋의 경우 작업비 외의 에셋 구매비가 추가됩니다.</p>
-      </div>
-    </section>
+</div>
 
-    <div class="wave-divider" aria-hidden="true">
-      <svg viewBox="0 0 1200 60" preserveAspectRatio="none">
-        <path class="wave-glow" d="M0,30 C150,60 350,0 600,30 C850,60 1050,0 1200,30"/>
-        <path class="wave-line" d="M0,30 C150,60 350,0 600,30 C850,60 1050,0 1200,30"/>
-      </svg>
-    </div>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
-    <!-- 포트폴리오 -->
-    <section class="section section-alt" id="portfolio">
-      <div class="section-inner">
-        <div class="section-head">
-          <p class="eyebrow">Portfolio</p>
-          <h2>포트폴리오</h2>
-          <p class="section-desc">대표 작업물을 추가하세요.</p>
-        </div>
-        <div class="portfolio-grid" id="portfolioGrid"></div>
-      </div>
-    </section>
+/* ============================================================
+   ★★★ 새 커미션 사이트를 만들 때는 이 부분만 교체하세요 ★★★
+   (Firebase 콘솔 → 프로젝트 설정 → 내 앱 → SDK 설정)
+   index.html / admin.html / init.html 세 파일 모두 동일하게!
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyDJemQYxfZ-xNLM91I9kXe_KBW1KxSCpHQ",
+  authDomain: "jiyul-commission.firebaseapp.com",
+  databaseURL: "https://jiyul-commission-default-rtdb.firebaseio.com",
+  projectId: "jiyul-commission",
+  storageBucket: "jiyul-commission.firebasestorage.app",
+  messagingSenderId: "732523553497",
+  appId: "1:732523553497:web:e0d0ae68ed4619795f54c8"
+};
+/* ============================================================ */
 
-    <div class="wave-divider" aria-hidden="true">
-      <svg viewBox="0 0 1200 60" preserveAspectRatio="none">
-        <path class="wave-glow" d="M0,30 C150,0 350,60 600,30 C850,0 1050,60 1200,30"/>
-        <path class="wave-line" d="M0,30 C150,0 350,60 600,30 C850,0 1050,60 1200,30"/>
-      </svg>
-    </div>
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-    <!-- 작업 과정 -->
-    <section class="section" id="process">
-      <div class="section-inner">
-        <div class="section-head">
-          <p class="eyebrow">Process</p>
-          <h2>작업 과정</h2>
-          <p class="section-desc">안내된 순서에 따라 작업이 진행됩니다.</p>
-        </div>
-        <ol class="process-list">
-          <li class="process-item">
-            <span class="process-num">01</span>
-            <div><h3>문의 및 상담</h3><p>상담을 통해 예산에 맞는 견적을 제공합니다.</p></div>
-          </li>
-          <li class="process-item">
-            <span class="process-num">02</span>
-            <div><h3>에셋 구매 및 작업 시작</h3><p>구매가 필요한 에셋 비용을 우선 입금 받고 구매 이후 작업을 시작합니다.</p></div>
-          </li>
-          <li class="process-item">
-            <span class="process-num">03</span>
-            <div><h3>중간 확인</h3><p>성형 완료 후 확인 및 수정이 진행됩니다.</p></div>
-          </li>
-          <li class="process-item">
-            <span class="process-num">04</span>
-            <div><h3>작업 완료 및 전달</h3><p>전달 파일은 메일로 전달됩니다.</p></div>
-          </li>
-        </ol>
-      </div>
-    </section>
+/* 여러 커미션을 한 Firebase에서 운영 — URL ?site=키 로 구분
+   예) index.html?site=illust  →  DB의 illust 노드를 읽음
+   파라미터가 없으면 commission 노드 (기존 리깅 사이트) */
+const SITE_KEY = (new URLSearchParams(location.search).get('site') || 'commission').replace(/[^a-zA-Z0-9_-]/g, '');
+const STATUS_ICONS = { open: '✅', wait: '⏳', closed: '🚫' };
 
-  </main>
+/* ---------- 메인 컬러 1개 → 팔레트 자동 생성 ---------- */
+function hexToHsl(hex) {
+  hex = (hex || '#3a9a60').replace('#','');
+  if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+  const r = parseInt(hex.substr(0,2),16)/255, g = parseInt(hex.substr(2,2),16)/255, b = parseInt(hex.substr(4,2),16)/255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b);
+  let h = 0, s = 0; const l = (max+min)/2; const d = max-min;
+  if (d) {
+    s = l > 0.5 ? d/(2-max-min) : d/(max+min);
+    if (max === r) h = ((g-b)/d + (g < b ? 6 : 0));
+    else if (max === g) h = (b-r)/d + 2;
+    else h = (r-g)/d + 4;
+    h *= 60;
+  }
+  return { h: h, s: s, l: l };
+}
+function hslToHex(h, s, l) {
+  s = Math.max(0, Math.min(1, s)); l = Math.max(0, Math.min(1, l));
+  const c = (1 - Math.abs(2*l - 1)) * s, x = c * (1 - Math.abs((h/60) % 2 - 1)), m = l - c/2;
+  let r=0,g=0,b=0;
+  if (h < 60)      { r=c; g=x; }
+  else if (h<120)  { r=x; g=c; }
+  else if (h<180)  { g=c; b=x; }
+  else if (h<240)  { g=x; b=c; }
+  else if (h<300)  { r=x; b=c; }
+  else             { r=c; b=x; }
+  const to = v => Math.round((v+m)*255).toString(16).padStart(2,'0');
+  return '#' + to(r) + to(g) + to(b);
+}
+function hexToRgbStr(hex) {
+  hex = (hex || '#3a9a60').replace('#','');
+  if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+  return parseInt(hex.substr(0,2),16)+','+parseInt(hex.substr(2,2),16)+','+parseInt(hex.substr(4,2),16);
+}
+window.genPalette = function(base) {
+  const c = hexToHsl(base), h = c.h, s = c.s;
+  return {
+    main:   base,
+    deep:   hslToHex(h, Math.min(1, s*1.05), 0.32),
+    dark:   hslToHex(h, Math.min(1, s*1.05), 0.26),
+    light:  hslToHex(h, Math.min(1, s*0.95), 0.56),
+    bg:     hslToHex(h, Math.max(0.15, s*0.45), 0.95),
+    bg2:    hslToHex(h, Math.max(0.12, s*0.35), 0.965),
+    border: hslToHex(h, Math.max(0.20, s*0.50), 0.75),
+    text:   hslToHex(h, Math.max(0.12, s*0.30), 0.36),
+    sub:    hslToHex(h, Math.max(0.15, s*0.40), 0.54),
+    hero1:  hslToHex(h, Math.max(0.15, s*0.45), 0.955),
+    hero2:  hslToHex(h, Math.max(0.20, s*0.50), 0.885)
+  };
+};
+window.applyTheme = function(base, root) {
+  const p = window.genPalette(base || '#3a9a60');
+  const el = root || document.documentElement;
+  Object.keys(p).forEach(k => el.style.setProperty('--'+k, p[k]));
+  el.style.setProperty('--main-rgb', hexToRgbStr(p.main));
+  return p;
+};
 
-  <footer class="site-footer">
-    <a class="gnav-brand" href="#top">yuuchann</a>
-    <p class="copyright">© 2023 yuuchann. All rights reserved.</p>
-  </footer>
+/* ---------- 기본값 (DB에 값이 없을 때 대비) ---------- */
+const DEF_SITE = {
+  page_title: '커미션', badge: 'COMMISSION', name: '커미션', en: 'COMMISSION',
+  desc: '', tags: [], footer_name: '', footer_body: '', footer_warn: ''
+};
+const DEF_SECTIONS = {
+  notice:  { visible: true, title: '공지사항',        subtitle: '' },
+  status:  { visible: true, title: '예약 현황',        subtitle: '' },
+  process: { visible: true, title: '진행 방식',        subtitle: '' },
+  collab:  { visible: false, title: '협업 작가',       subtitle: '' },
+  price:   { visible: true, title: '가격표',          subtitle: '', note: '', head1: '작업 항목', head2: '포함 내용', head3: '가격' },
+  sample:  { visible: true, title: '포트폴리오 · 샘플', subtitle: '' },
+  faq:     { visible: true, title: '자주 묻는 질문',   subtitle: '' },
+  refund:  { visible: true, title: '환불 정책',        subtitle: '', head1: '작업 단계', head2: '환불 비율' }
+};
 
-  <div class="pdf-template" id="pdfTemplate" aria-hidden="true"></div>
+function getYoutubeId(url) {
+  if (!url) return null;
+  const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/);
+  return m ? m[1] : null;
+}
+const nl = t => (t || '').replace(/\n/g, '<br>');
+function setSection(key, sec) {
+  const el = document.getElementById('sec-' + key);
+  if (el) el.style.display = sec.visible === false ? 'none' : '';
+  const t = document.getElementById('t-' + key); if (t) t.textContent = sec.title || '';
+  const s = document.getElementById('s-' + key); if (s) s.textContent = sec.subtitle || '';
+}
 
-  <script>
-    // ---------- 공지사항 / 가격표 / 포트폴리오: data.json 기반 렌더링 ----------
-    const DEFAULT_SITE_DATA = {
-      notices: [
-        { tag: '안냐', date: '2023.05.22', title: '작업 아바타 관련', body: '제가 가지고 있는 캐릭터 키쿄, 마메히나타를 제외한 캐릭터 아바타 사용시 아바타 구매 비용이 추가됩니다.' },
-        { tag: '안내', date: '2023.05.22', title: '에셋(옷/메이크업/소품) 관련 안내', body: '본 커미션은 작업비 외에 사용되는 유료 에셋 비용이 별도로 발생합니다.\n- 에셋 비용 부담: 신청자 부담입니다.\n- 작업자에게 없는 유료 에셋(의상, 헤어 등)을 사용하는 경우, 신청자분께서 해당 금액을 선입금 해주셔야 작업이 가능합니다.' },
-        { tag: '안내', date: '2023.05.22', title: '라이선스 규정', body: '부스(Booth) 등에서 판매되는 유료 에셋을 사용할 경우, 작업자와 신청자 양측 모두 해당 에셋을 구매(소유)하고 있어야 합니다.\n- 이는 제작자의 저작권 및 약관(VN3 라이선스 등) 준수를 위함이며, 대리 구매나 파일 공유는 절대 불가능합니다.' }
-      ],
-      priceCategories: [
-        {
-          category: 'VSF',
-          groups: [
-            { label: '전용 파츠 추가', items: [
-              { name: '전용 헤어', price: '10,000원' },
-              { name: '전용 의상', price: '20,000원' },
-              { name: '전용 악세', price: '5,000원' }
-            ]},
-            { label: '기타', items: [
-              { name: '헤어 뚫림 방지', price: '10,000원' }
-            ]}
-          ]
-        },
-        {
-          category: '추가기능',
-          groups: [
-            { label: '기능', items: [
-              { name: '옷장기능 추가', price: '5,000원' }
-            ]}
-          ]
-        },
-        {
-          category: '파츠',
-          groups: [
-            { label: '표정', items: [
-              { name: '표정 추가', price: '개당 15,000원' }
-            ]},
-            { label: '헤어 컬러', items: [
-              { name: '파츠에 없는 색으로 변경', price: '5,000원' }
-            ]}
-          ]
-        }
-      ],
-      portfolio: [
-        { image: 'https://lh3.googleusercontent.com/OyeP0RpGra9usO7IVDjc-XI7h30zCvfj5gdtzYflqS5xxuNHTrOWikUTn10npDryyScNRy4xNancMHREbgTWCG3LazU9xTY0gBIR_h1nLXls0BEWeFNA=w800'},
-        { image: 'https://lh3.googleusercontent.com/e4h3RzBA1KSGYt1hrFQIR7IRV5ZfQc0tvonCi6QLZs-nCexIQAPnTYhSQXVUQegHRcwY-Hho4LVMT7oGGAoK8jGS6oWR8eqCjB-zbc4MOtWht0MhG4eI=w800'},
-        { image: 'https://lh3.googleusercontent.com/2BYv8Olc0XOBpB-Gl5IZ9UjSAq2zo_YBc2nHXjYIozUCg2dQJR-mf8Eu146Yz-TG-ZVp6B2RkVGzcM_lLk_7RYj0ty43hXN3zyJaB-cNwIHLlqv_b8xQtg=w800'},
-        { image: 'https://lh3.googleusercontent.com/HmzNEQK8UdlJRhJG-njJnJgdNb1SOcwDs-stVFyUGY2IvX5FUYfUU58s54uyijO7d2KbbZCMYEm-h2cAqi0a6ClHN9W3Tb2-836dDAiRmXX9O_4Z5C--OQ=w800'},
-      ]
-    };
+onValue(ref(db, SITE_KEY), function(snapshot) {
+  const d = snapshot.val();
+  if (!d) return;
 
-    function renderNotices(list){
-      document.getElementById('noticeList').innerHTML = list.map(n => `
-        <li class="notice-item">
-          <span class="notice-tag">${escapeHtml(n.tag)}</span>
-          <span class="notice-date">${escapeHtml(n.date)}</span>
-          <p class="notice-title">${escapeHtml(n.title)}</p>
-          <p class="notice-body">${escapeHtml(n.body)}</p>
-        </li>
-      `).join('');
+  // 0. 테마
+  window.applyTheme((d.theme && d.theme.main) || '#3a9a60');
+
+  // 0-1. 사이트 기본 정보
+  const site = Object.assign({}, DEF_SITE, d.site || {});
+  document.title = site.page_title || site.name;
+  document.getElementById('hero-badge').textContent = site.badge || '';
+  document.getElementById('hero-badge').style.display = site.badge ? '' : 'none';
+  document.getElementById('hero-name').textContent = site.name || '';
+  document.getElementById('hero-en').textContent = site.en || '';
+
+  const at = (d.notice && d.notice.answer_time) || '';
+  document.getElementById('hero-sub').innerHTML =
+    nl(site.desc) + (at ? (site.desc ? '<br>' : '') + '문의 답변 시간 : ' + at : '');
+
+  const tags = site.tags || [];
+  document.getElementById('hero-tags').innerHTML =
+    tags.map(t => '<span class="tag"># ' + t + '</span>').join('');
+
+  document.getElementById('footer-name').textContent = site.footer_name || site.name || '';
+  document.getElementById('footer-body').innerHTML = nl(site.footer_body);
+  document.getElementById('footer-warn').textContent = site.footer_warn || '';
+
+  // 0-2. 섹션 제목 / 부제 / 표시여부
+  const sec = {};
+  Object.keys(DEF_SECTIONS).forEach(k => {
+    sec[k] = Object.assign({}, DEF_SECTIONS[k], (d.sections && d.sections[k]) || {});
+    setSection(k, sec[k]);
+  });
+  // 공지 부제엔 답변시간 자동 추가
+  if (at) {
+    const base = sec.notice.subtitle;
+    document.getElementById('s-notice').textContent =
+      (base ? base + ' · ' : '') + '문의 답변 시간 : ' + at;
+  }
+
+  // 1. 공지
+  const ng = document.getElementById('notice-grid'); ng.innerHTML = '';
+  ((d.notice && d.notice.items) || []).forEach(n => {
+    const cls = n.type === 'warn' ? ' notice-card--warn' : '';
+    ng.innerHTML += `<div class="notice-card${cls}"><div class="notice-card-title">${n.icon || ''} ${n.title || ''}</div><div class="notice-card-body">${nl(n.body)}</div></div>`;
+  });
+
+  // 2. 예약현황
+  const sw = document.getElementById('status-wrap'); sw.innerHTML = '';
+  (d.status || []).forEach(s => {
+    sw.innerHTML += `<div class="status-item status-${s.type}"><div class="status-dot">${STATUS_ICONS[s.type] || '✅'}</div><div class="status-label">${s.label || ''}</div><div class="status-desc">${s.desc || ''}</div></div>`;
+  });
+
+  // 3. 진행방식
+  const steps = document.getElementById('steps'); steps.innerHTML = '';
+  (d.process || []).forEach((p, i) => {
+    steps.innerHTML += `<div class="step"><div class="step-num">${i+1}</div><div class="step-content"><h4>${p.title || ''}</h4><p>${nl(p.body)}</p></div></div>`;
+  });
+
+  // 4. 협업작가
+  const cg = document.getElementById('collab-grid'); cg.innerHTML = '';
+  ((d.collab && d.collab.items) || []).forEach(c => {
+    const img = c.image
+      ? `<img class="collab-img" src="${c.image}" alt="${c.name || ''}">`
+      : `<div class="collab-img-empty">이미지</div>`;
+    const nameEl = c.link
+      ? `<a href="${c.link}" target="_blank" style="text-decoration:none;color:inherit;"><div class="collab-name" style="cursor:pointer;text-decoration:underline;text-underline-offset:3px;">${c.name || ''}</div></a>`
+      : `<div class="collab-name">${c.name || ''}</div>`;
+    cg.innerHTML += `<div class="collab-card">${img}<div class="collab-info">${nameEl}<div class="collab-label">협업 혜택</div><div class="collab-main">${c.main_desc || ''}</div><div class="collab-label" style="margin-top:6px;">설명</div><div class="collab-sub">${c.sub_desc || ''}</div></div></div>`;
+  });
+
+  // 5. 가격표
+  document.getElementById('price-h1').textContent = sec.price.head1;
+  document.getElementById('price-h2').textContent = sec.price.head2;
+  document.getElementById('price-h3').textContent = sec.price.head3;
+  const noteEl = document.getElementById('price-note');
+  noteEl.innerHTML = nl(sec.price.note);
+  noteEl.style.display = sec.price.note ? '' : 'none';
+  const tb = document.getElementById('price-tbody'); tb.innerHTML = '';
+  let lastCat = '';
+  (d.price || []).forEach(p => {
+    if (p.category && p.category !== lastCat) {
+      tb.innerHTML += `<tr class="price-cat"><td colspan="3">${p.category}</td></tr>`;
+      lastCat = p.category;
     }
+    const badge = p.badge ? `<span class="price-badge">${p.badge}</span>` : '';
+    tb.innerHTML += `<tr><td>${p.item || ''}${badge}</td><td class="price-sub">${p.desc || ''}</td><td>${p.price || ''}</td></tr>`;
+  });
 
-    function renderPriceCategories(list){
-      document.getElementById('priceTable').innerHTML = list.map(cat => `
-        <div class="price-category">
-          <h3 class="price-category-name">${escapeHtml(cat.category)}</h3>
-          <div class="price-groups">
-            ${(cat.groups || []).map(g => `
-              <div class="price-group">
-                <p class="price-group-label">${escapeHtml(g.label)}</p>
-                <div class="price-items">
-                  ${(g.items || []).map(it => `
-                    <span class="price-chip">
-                      <span class="price-chip-name">${escapeHtml(it.name)}</span>
-                      <span class="price-chip-amount">${escapeHtml(it.price)}</span>
-                    </span>
-                  `).join('')}
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `).join('');
-    }
+  // 6. 샘플
+  const sg = document.getElementById('sample-grid'); sg.innerHTML = '';
+  (d.samples || []).forEach(s => {
+    const embedId = getYoutubeId(s.url);
+    let media;
+    if (embedId) media = `<div class="sample-video"><iframe src="https://www.youtube.com/embed/${embedId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+    else if (s.thumb) media = `<img class="sample-thumb" src="${s.thumb}" alt="${s.title || ''}">`;
+    else media = `<div class="sample-thumb-empty">[ 샘플 URL을 입력해 주세요 ]</div>`;
+    sg.innerHTML += `<div class="sample-card">${media}<div class="sample-title">${s.title || ''}</div></div>`;
+  });
 
-    function renderPortfolio(list){
-      document.getElementById('portfolioGrid').innerHTML = list.map(p => `
-        <figure class="portfolio-item">
-          ${p.image ? `<img class="portfolio-img" src="${escapeHtml(p.image)}" alt="${escapeHtml(p.caption)}" loading="lazy">` : `<div class="portfolio-ph">이미지</div>`}
-          <figcaption>${escapeHtml(p.caption)}</figcaption>
-        </figure>
-      `).join('');
-    }
+  // 7. FAQ
+  const fl = document.getElementById('faq-list'); fl.innerHTML = '';
+  (d.faq || []).forEach(f => {
+    fl.innerHTML += `<div class="faq-item"><div class="faq-q"><div class="faq-q-mark">Q</div>${f.question || ''}</div><div class="faq-a"><div class="faq-a-mark">A</div>${f.answer || ''}</div></div>`;
+  });
 
-    function renderSiteData(data){
-      renderNotices(data.notices || []);
-      renderPriceCategories(data.priceCategories || []);
-      renderPortfolio(data.portfolio || []);
-    }
+  // 8. 환불
+  document.getElementById('refund-h1').textContent = sec.refund.head1;
+  document.getElementById('refund-h2').textContent = sec.refund.head2;
+  document.getElementById('refund-intro').innerHTML = nl(d.refund && d.refund.intro);
+  const rt = document.getElementById('refund-tbody'); rt.innerHTML = '';
+  ((d.refund && d.refund.rows) || []).forEach(r => {
+    const cls = r.type === 'full' ? 'refund-full' : r.type === 'none' ? 'refund-none' : 'refund-partial';
+    rt.innerHTML += `<tr><td>${r.stage || ''}</td><td class="${cls}">${r.rate || ''}</td></tr>`;
+  });
 
-    fetch('./data.json')
-      .then(res => { if(!res.ok) throw new Error('no data.json'); return res.json(); })
-      .then(data => renderSiteData(data))
-      .catch(() => renderSiteData(DEFAULT_SITE_DATA));
+  // iframe 높이 전달
+  window.parent.postMessage({ height: document.body.scrollHeight }, '*');
+});
 
-    const toggle = document.getElementById('navToggle');
-    const navList = document.getElementById('navList');
-    toggle.addEventListener('click', () => {
-      const open = navList.classList.toggle('open');
-      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
-    navList.querySelectorAll('a').forEach(a => {
-      a.addEventListener('click', () => {
-        navList.classList.remove('open');
-        toggle.setAttribute('aria-expanded', 'false');
-      });
-    });
+// 커미션이 2개 이상일 때만 "목록으로" 버튼 표시
+onValue(ref(db, '_sites'), function(snap) {
+  const list = snap.val() || {};
+  const count = Object.keys(list).filter(k => list[k] && list[k].visible !== false).length;
+  if (count < 2) return;
+  document.getElementById('back-btn').style.display = 'inline-flex';
+  document.getElementById('footer-back').style.display = 'block';
+  window.parent.postMessage({ height: document.body.scrollHeight }, '*');
+}, { onlyOnce: true });
 
-    const navLinks = document.querySelectorAll('[data-nav]');
-    const sections = [...navLinks].map(a => document.querySelector(a.getAttribute('href')));
-    const spy = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if(entry.isIntersecting){
-          navLinks.forEach(a => a.classList.remove('active'));
-          const match = document.querySelector(`[data-nav][href="#${entry.target.id}"]`);
-          if(match) match.classList.add('active');
-        }
-      });
-    }, { rootMargin: '-45% 0px -45% 0px' });
-    sections.forEach(sec => sec && spy.observe(sec));
-
-    // ---------- 문의 양식: 복사 / PDF 다운로드 ----------
-    function getFormData(){
-      return {
-        name: document.getElementById('fName').value.trim(),
-        contact: document.getElementById('fContact').value.trim(),
-        type: document.getElementById('fType').value,
-        budget: document.getElementById('fBudget').value.trim(),
-        message: document.getElementById('fMessage').value.trim(),
-      };
-    }
-
-    function showStatus(msg){
-      const el = document.getElementById('formStatus');
-      el.textContent = msg;
-      clearTimeout(el._t);
-      el._t = setTimeout(() => { el.textContent = ''; }, 3000);
-    }
-
-    function escapeHtml(str){
-      return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    }
-
-    function buildText(data){
-      const typeText = (data.type && data.type !== '선택해주세요') ? data.type : '-';
-      return [
-        '[커미션 문의]',
-        `닉네임: ${data.name || '-'}`,
-        `연락 방법: ${data.contact || '-'}`,
-        `커미션 종류: ${typeText}`,
-        `예산: ${data.budget || '-'}`,
-        '요청 내용:',
-        data.message || '-'
-      ].join('\n');
-    }
-
-    document.getElementById('copyBtn').addEventListener('click', async () => {
-      const data = getFormData();
-      if(!data.message){ showStatus('요청 내용을 입력해주세요.'); return; }
-      const text = buildText(data);
-      try{
-        await navigator.clipboard.writeText(text);
-        showStatus('복사되었습니다.');
-      }catch(e){
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.position = 'fixed';
-        ta.style.left = '-9999px';
-        document.body.appendChild(ta);
-        ta.select();
-        try{
-          document.execCommand('copy');
-          showStatus('복사되었습니다.');
-        }catch(err){
-          showStatus('복사에 실패했습니다. 직접 선택해 복사해주세요.');
-        }
-        document.body.removeChild(ta);
-      }
-    });
-
-    document.getElementById('pdfBtn').addEventListener('click', () => {
-      const data = getFormData();
-      if(!data.message){ showStatus('요청 내용을 입력해주세요.'); return; }
-      const typeText = (data.type && data.type !== '선택해주세요') ? data.type : '-';
-      const tpl = document.getElementById('pdfTemplate');
-      tpl.innerHTML = `
-        <h2>커미션 문의 내용</h2>
-        <div class="pdf-row"><div class="pdf-label">닉네임</div><div class="pdf-value">${escapeHtml(data.name) || '-'}</div></div>
-        <div class="pdf-row"><div class="pdf-label">연락 방법</div><div class="pdf-value">${escapeHtml(data.contact) || '-'}</div></div>
-        <div class="pdf-row"><div class="pdf-label">커미션 종류</div><div class="pdf-value">${escapeHtml(typeText)}</div></div>
-        <div class="pdf-row"><div class="pdf-label">예산</div><div class="pdf-value">${escapeHtml(data.budget) || '-'}</div></div>
-        <div class="pdf-row"><div class="pdf-label">요청 내용</div><div class="pdf-value">${escapeHtml(data.message)}</div></div>
-        <p class="pdf-date">${new Date().toLocaleDateString('ko-KR')}</p>
-      `;
-      showStatus('PDF 생성 중...');
-      html2canvas(tpl, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jspdf.jsPDF({ unit: 'pt', format: 'a4' });
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
-        const margin = 40;
-        let imgWidth = pageWidth - margin * 2;
-        let imgHeight = canvas.height * imgWidth / canvas.width;
-        if(imgHeight > pageHeight - margin * 2){
-          const ratio = (pageHeight - margin * 2) / imgHeight;
-          imgHeight *= ratio;
-          imgWidth *= ratio;
-        }
-        const x = (pageWidth - imgWidth) / 2;
-        pdf.addImage(imgData, 'PNG', x, margin, imgWidth, imgHeight);
-        pdf.save(`커미션문의_${data.name || '무제'}.pdf`);
-        showStatus('PDF가 다운로드되었습니다.');
-      }).catch(() => showStatus('PDF 생성에 실패했습니다.'));
-    });
-  </script>
-
+// iframe 스크롤 제어
+window.addEventListener('message', e => {
+  if (!e.data) return;
+  if (e.data.scrollTo === 'top') { window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  if (e.data.scrollTo) {
+    const el = document.getElementById(e.data.scrollTo);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+});
+</script>
 </body>
 </html>
